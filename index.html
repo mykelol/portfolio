@@ -1,0 +1,2299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Michael Tran — Portfolio</title>
+<meta name="description" content="Michael Tran — Mechanical Engineering Honors Student, Texas A&amp;M University. Engineering and coding project portfolio.">
+
+<script>
+  /* applied immediately, before CSS paints, so saved/system theme
+     preference shows instantly with no flash of the wrong colors */
+  (function(){
+    try {
+      var saved = localStorage.getItem('mtran-portfolio-theme');
+      var wantsLight = saved
+        ? saved === 'light'
+        : (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
+      if (wantsLight) document.documentElement.setAttribute('data-theme', 'light');
+    } catch(e){}
+  })();
+</script>
+
+<!--
+  ============================================================
+  MICHAEL TRAN — PORTFOLIO  (single-file site)
+  ============================================================
+  HOW TO CUSTOMIZE — search for "EDIT:" comments throughout.
+  Quick map:
+    1. Hero photo        -> search "EDIT: HERO IMAGE"
+    2. Projects           -> search "EDIT: PROJECT 1 / 2 / 3"
+    3. About / spec table -> search "EDIT: ABOUT"
+    4. Resume PDF         -> search "EDIT: RESUME"
+       (place a file named resume.pdf in the same folder as
+       this index.html, or change the file path below)
+    5. Contact info       -> search "EDIT: CONTACT"
+  No build tools needed — just open index.html in a browser,
+  or upload the folder to any static host (GitHub Pages, etc).
+  ============================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root{
+  --bg: #06080F;
+  --panel: #0B101C;
+  --panel-soft: #0D1323;
+  --panel-rgba: rgba(11,16,28,0.95);
+  --panel-hover: #121929;
+  --hover-tint: rgba(224,231,247,0.11);
+  --line: #F4F7FC;
+  --line-soft: rgba(244,247,252,0.9);
+  --line-faint: rgba(224,231,247,0.68);
+  --line-faint-2: rgba(224,231,247,0.11);
+  --maroon: #2E5AA8;
+  --maroon-bright: #5B8DEF;
+  --maroon-deep: #14213D;
+  --on-maroon: #F4F7FC;
+
+  /* maximalist secondary accents — the datasheet gets a full
+     three-color signal system instead of maroon-only */
+  --amber: #3E6BB0;
+  --amber-bright: #7FB0F5;
+  --cyan: #3A4A9E;
+  --cyan-bright: #7A84E0;
+
+  --glow-1: radial-gradient(1100px circle at 10% -14%, rgba(91,141,239,0.40), transparent 50%);
+  --glow-2: radial-gradient(950px circle at 106% 0%, rgba(58,74,158,0.28), transparent 46%);
+  --glow-3: radial-gradient(800px circle at 50% 118%, rgba(62,107,176,0.20), transparent 50%);
+  --sheet-shadow:
+    0 0 0 1px rgba(224,231,247,0.28),
+    10px 10px 0 0 rgba(91,141,239,0.9),
+    18px 18px 0 0 rgba(58,74,158,0.55),
+    0 30px 60px rgba(0,0,0,0.7);
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  --sidebar-w: 248px;
+  --sidebar-w-collapsed: 68px;
+  --radius: 2px;
+}
+
+/* light mode — toggled by JS setting data-theme="light" on <html>
+   leans into the "drafting sheet" concept instead of just inverting
+   the dark palette: a clean near-white paper, a maroon-tinted blueprint
+   grid, and sheets that lift visibly off the page. */
+html[data-theme="light"]{
+  --bg: #F4F7FB;
+  --panel: #FFFFFF;
+  --panel-soft: #FAFBFE;
+  --panel-rgba: rgba(255,255,255,0.97);
+  --panel-hover: #E7ECF6;
+  --hover-tint: rgba(46,90,168,0.08);
+  --line: #101826;
+  --line-soft: rgba(16,24,38,0.78);
+  --line-faint: rgba(16,24,38,0.68);
+  --line-faint-2: rgba(46,90,168,0.09);
+  --maroon-deep: #1E3A6B;
+  /* darkened vs. dark-mode's --maroon-bright so text set in var(--bg) on
+     top of it (badges, chips, buttons) stays readable on a light page */
+  --maroon-bright: #2F55A0;
+  --amber: #2F5590;
+  --amber-bright: #3D6BAE;
+  --cyan: #2A3878;
+  --cyan-bright: #3B4F96;
+  --glow-1: radial-gradient(1100px circle at 10% -14%, rgba(46,90,168,0.14), transparent 50%);
+  --glow-2: radial-gradient(950px circle at 106% 0%, rgba(42,56,120,0.10), transparent 46%);
+  --glow-3: radial-gradient(800px circle at 50% 118%, rgba(47,85,144,0.09), transparent 50%);
+  /* same crisp hard-edged double-offset construction as dark mode,
+     just recolored so it stays legible on a light page */
+  --sheet-shadow:
+    0 0 0 1px rgba(16,24,38,0.22),
+    9px 9px 0 0 rgba(47,85,160,0.55),
+    16px 16px 0 0 rgba(42,56,120,0.30),
+    0 26px 52px rgba(14,20,34,0.16);
+}
+
+*{ box-sizing: border-box; }
+html{ scroll-behavior: smooth; }
+html, body{ max-width: 100%; overflow-x: hidden; }
+body{
+  margin:0;
+  background: var(--bg);
+  color: var(--line);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* smooth color crossfade on every themed surface when the mode switches */
+.sidebar, .sheet, .project, .navtab, .theme-toggle, .btn, .tag, .field input,
+.field textarea, .gallery-arrow, .home-meta__item, .spec-table tr{
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* blueprint grid texture + corner glow across whole page —
+   --glow-1/--glow-2 and --line-faint-2 swap per theme */
+body{
+  background-image:
+    var(--glow-1),
+    var(--glow-2),
+    var(--glow-3),
+    linear-gradient(var(--line-faint-2) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-faint-2) 1px, transparent 1px),
+    linear-gradient(rgba(91,141,239,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(58,74,158,0.05) 1px, transparent 1px);
+  background-size: auto, auto, auto, 36px 36px, 36px 36px, 180px 180px, 180px 180px;
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat, repeat, repeat, repeat;
+}
+
+h1,h2,h3,h4{ font-family: var(--font-display); margin: 0; letter-spacing: 0.01em; }
+p{ margin: 0 0 1em 0; }
+a{ color: var(--maroon-bright); }
+button{ font-family: inherit; }
+
+::selection{ background: var(--maroon); color: var(--on-maroon); }
+
+:focus-visible{
+  outline: 2px solid var(--maroon-bright);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* ============================================================
+   LAYOUT SHELL
+   ============================================================ */
+.app{
+  position: relative;
+  min-height: 100vh;
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.sidebar{
+  position: fixed;
+  top:0; left:0; bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--panel-soft);
+  border-right: 3px solid var(--line);
+  box-shadow: 4px 0 0 0 var(--maroon-bright), 8px 0 0 0 rgba(58,74,158,0.4);
+  display:flex;
+  flex-direction: column;
+  z-index: 20;
+  transition: width 0.28s ease;
+  overflow: hidden;
+}
+.app.is-collapsed .sidebar{ width: var(--sidebar-w-collapsed); }
+
+.sidebar__head{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 18px 16px;
+  border-bottom: 1px solid var(--line-faint);
+  white-space: nowrap;
+}
+.sidebar__toggle{
+  flex: 0 0 auto;
+  width: 32px; height: 32px;
+  display:flex; align-items:center; justify-content:center;
+  background: transparent;
+  border: 1px solid var(--line-faint);
+  border-radius: var(--radius);
+  color: var(--line);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.sidebar__toggle:hover{ border-color: var(--maroon-bright); color: var(--maroon-bright); }
+.app.is-collapsed .sidebar__toggle svg{ transform: rotate(180deg); }
+.sidebar__toggle svg{ transition: transform 0.28s ease; }
+
+.sidebar__brand{
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--line-soft);
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.18s ease;
+}
+.app.is-collapsed .sidebar__brand{ opacity: 0; width: 0; pointer-events:none; }
+.app.is-collapsed .sidebar__head{ justify-content: center; gap: 0; padding: 18px 0; }
+
+.sidebar__nav{
+  display:flex;
+  flex-direction: column;
+  padding: 8px 0 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+.navtab{
+  position: relative;
+  display:flex;
+  align-items:center;
+  gap: 14px;
+  width: 100%;
+  padding: 13px 16px;
+  background: transparent;
+  border: none;
+  border-left: 3px solid transparent;
+  color: var(--line-soft);
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+.navtab:hover{ color: var(--line); background: var(--hover-tint); }
+.navtab.is-active{
+  color: var(--line);
+  border-left-width: 4px;
+  border-left-color: var(--maroon-bright);
+  background: rgba(91,141,239,0.16);
+}
+/* each tab gets its own signal color, cycling maroon / amber / cyan,
+   so the nav column itself is a stripe of accents rather than one tone */
+.navtab:nth-of-type(3n+1).is-active{ border-left-color: var(--maroon-bright); background: rgba(91,141,239,0.16); }
+.navtab:nth-of-type(3n+2).is-active{ border-left-color: var(--amber-bright); background: rgba(62,107,176,0.16); }
+.navtab:nth-of-type(3n+3).is-active{ border-left-color: var(--cyan-bright); background: rgba(58,74,158,0.16); }
+.navtab:nth-of-type(3n+1) .navtab__num{ color: var(--maroon-bright); }
+.navtab:nth-of-type(3n+2) .navtab__num{ color: var(--amber-bright); }
+.navtab:nth-of-type(3n+3) .navtab__num{ color: var(--cyan-bright); }
+.navtab__icon{
+  flex: 0 0 auto;
+  width: 20px; height: 20px;
+  display:flex; align-items:center; justify-content:center;
+}
+.navtab__icon svg{ width: 100%; height: 100%; }
+.navtab__num{
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--maroon-bright);
+  width: 18px;
+}
+.navtab__label{
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.16s ease;
+}
+.app.is-collapsed .navtab__label{ opacity: 0; width: 0; pointer-events: none; }
+.app.is-collapsed .navtab{ justify-content: center; padding: 13px 0; gap: 0; }
+.app.is-collapsed .navtab__num{ display:none; }
+
+.theme-toggle{
+  margin-top: auto;
+  border-top: 1px solid var(--line-faint);
+}
+.theme-toggle .navtab__label{ position: relative; top: 1.5px; }
+.theme-toggle__icon{ display:none; }
+.theme-toggle__icon--sun{ display:block; }
+html[data-theme="light"] .theme-toggle__icon--sun{ display:none; }
+html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
+
+.sidebar__foot{
+  padding: 14px 16px;
+  border-top: 1px solid var(--line-faint);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--line-soft);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.app.is-collapsed .sidebar__foot{ opacity: 0; }
+
+/* ============================================================
+   MAIN CONTENT / SHEETS
+   ============================================================ */
+.content{
+  margin-left: var(--sidebar-w);
+  padding: 56px 40px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: margin-left 0.28s ease;
+}
+.app.is-collapsed .content{ margin-left: var(--sidebar-w-collapsed); }
+
+.sheet{
+  position: relative;
+  width: 100%;
+  max-width: 1180px;
+  border: 1px solid var(--line-faint);
+  background: var(--panel-rgba);
+  box-shadow: var(--sheet-shadow);
+  padding: 48px 52px;
+  animation: sheetIn 0.35s ease;
+}
+@keyframes sheetIn{
+  from{ opacity: 0; transform: translateY(6px); }
+  to{ opacity: 1; transform: translateY(0); }
+}
+.sheet[hidden]{ display:none; }
+
+/* thick tri-color gradient bar — the sheet's "title block" strip */
+.sheet{ border-top: 4px solid var(--maroon-bright); }
+.sheet::before{
+  content:"";
+  position:absolute;
+  top:-4px; left:0; right:0; height:4px;
+  background: linear-gradient(90deg, var(--maroon-bright) 0 34%, var(--amber-bright) 34% 67%, var(--cyan-bright) 67% 100%);
+  pointer-events:none;
+}
+
+/* corner crop marks — the drawing-sheet signature, now bolder and
+   color-coded per corner instead of a single uniform maroon */
+.sheet::after,
+.sheet__corner-tl,
+.sheet__corner-br,
+.sheet__corner-bl{
+  content:"";
+  position:absolute;
+  width: 22px; height: 22px;
+  pointer-events:none;
+}
+.sheet::after{ bottom:-1px; right:-1px; border-bottom:3px solid var(--cyan-bright); border-right:3px solid var(--cyan-bright); }
+.sheet__corner-tl{ top:1px; right:-1px; border-top:3px solid var(--amber-bright); border-right:3px solid var(--amber-bright); }
+.sheet__corner-br{ bottom:-1px; left:-1px; border-bottom:3px solid var(--maroon-bright); border-left:3px solid var(--maroon-bright); }
+
+.sheet__eyebrow{
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 11.5px;
+  letter-spacing: 0.18em;
+  color: var(--bg);
+  background: var(--maroon-bright);
+  padding: 4px 10px;
+  margin-bottom: 0;
+  display:inline-flex;
+  align-items:center;
+  gap: 10px;
+  width: fit-content;
+}
+.sheet__eyebrow::after{ content: none; }
+
+/* thin horizontal rule under each "PORTFOLIO — SHEET __" eyebrow tag */
+.sheet__hr{
+  width: 100%;
+  height: 1px;
+  border: none;
+  background: var(--line-faint);
+  margin: 18px 0;
+}
+
+.sheet__title{
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 600;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+.sheet__subtitle{
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--line-soft);
+  letter-spacing: 0.02em;
+  margin-bottom: 28px;
+}
+
+/* ============================================================
+   HOME
+   ============================================================ */
+.home-hero-row{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+  margin-bottom: 0;
+}
+.home-text-col{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.home-name{
+  font-size: clamp(38px, 6vw, 74px);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.01em;
+  margin-bottom: 18px;
+  text-shadow: 4px 4px 0 var(--maroon-bright), 8px 8px 0 rgba(58,74,158,0.5);
+}
+.home-role{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--maroon-bright);
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
+}
+.home-role b{ color: var(--maroon-bright); font-weight: 700; }
+.home-tagline{
+  color: var(--line-soft);
+  margin: 22px 0 0;
+  font-size: 15px;
+  max-width: 44ch;
+}
+.home-cta{ margin-top: 28px; }
+
+/* EDIT: HERO IMAGE — replace .hero-figure contents with:
+   <img src="hero.jpg" alt="Michael Tran" style="width:100%;height:100%;object-fit:cover;">
+   Recommended size: roughly 800 x 600px. */
+
+.hero-figure{
+  width: 100%;
+  max-width: 720px;
+
+  aspect-ratio: 12 / 10;
+
+  overflow: hidden;
+  position: relative;
+
+  border: 2px solid var(--line);
+  background: var(--panel-soft);
+  box-shadow: 7px 7px 0 0 var(--cyan-bright);
+}
+.hero-figure img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+
+  /* zoom in */
+  transform:scale(1.12);
+
+  /* shift the visible crop to the right — decrease this % to push further right */
+  object-position: 15% center;
+  transform-origin:center center;
+}
+
+.hero-figure::before{
+  content:'';
+  position:absolute;
+  inset:12px;
+  border:1px solid rgba(30,58,107,.25);
+  pointer-events:none;
+  z-index:2;
+}
+
+.hero-figure::after{
+  content:'';
+  position:absolute;
+  top:16px;
+  right:16px;
+  width:18px;
+  height:18px;
+  border-top:2px solid var(--maroon-bright);
+  border-right:2px solid var(--maroon-bright);
+  opacity:.8;
+  z-index:2;
+}
+.hero-figure svg{ width: 34px; height: 34px; opacity: 0.6; }
+.hero-figure span{ font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.08em; z-index:1; }
+.hero-figure span.dim{ font-size: 11px; opacity: 0.65; }
+
+.home-meta{
+  display:flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 28px;
+  margin-top: 30px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line-faint);
+}
+.home-meta__item{ font-family: var(--font-mono); font-size: 12px; text-align: center; }
+.home-meta__item label{ display:block; color: var(--maroon-bright); letter-spacing: 0.12em; font-size: 10.5px; margin-bottom: 4px; }
+.home-meta__item div{ color: var(--line-soft); }
+
+@media (max-width: 860px){
+  .home-hero-row{ grid-template-columns: 1fr; gap: 28px; }
+  .hero-figure{ aspect-ratio: 16/7; }
+}
+
+/* below this width the two project columns get too narrow to be
+   useful — stack media on top and info below for every project,
+   overriding the alternating left/right order. */
+@media (max-width: 900px){
+  .project__body{ grid-template-columns: 1fr; gap: 20px; }
+  .project__media-col,
+  .project--reverse .project__media-col{ order: 1; }
+  .project__info-col,
+  .project--reverse .project__info-col{ order: 2; }
+}
+
+/* ============================================================
+   PROJECTS
+   ============================================================ */
+.project{
+  border: 2px solid var(--line);
+  background: var(--panel-rgba);
+  margin-bottom: 36px;
+  box-shadow: 6px 6px 0 0 rgba(58,74,158,0.35);
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease,
+              opacity 0.7s cubic-bezier(0.22,0.61,0.36,1);
+  /* fade-in-on-scroll: starts hidden/offset, revealed by JS via
+     IntersectionObserver adding .is-visible (see script at bottom) */
+  opacity: 0;
+  transform: translateY(36px);
+}
+.project.is-visible{ opacity: 1; transform: translateY(0); }
+.project-observe:nth-of-type(2) .project{ transition-delay: 0.08s; }
+.project-observe:nth-of-type(3) .project{ transition-delay: 0.16s; }
+.project:hover{ border-color: var(--maroon-bright); box-shadow: 9px 9px 0 0 rgba(91,141,239,0.45); transform: translate(-2px,-2px); }
+.project-observe:last-of-type .project{ margin-bottom: 0; }
+
+.project__head{
+  display:flex;
+  align-items:flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 26px 18px;
+  border-bottom: 2px solid var(--line);
+  flex-wrap: wrap;
+}
+.project__id{ font-family: var(--font-mono); font-weight: 700; font-size: 11px; color: var(--bg); background: var(--maroon-bright); padding: 2px 8px; letter-spacing: 0.1em; margin-bottom: 8px; display: inline-block; }
+.project__title{ font-size: 23px; font-weight: 700; }
+.project__tags{ display:flex; gap: 8px; flex-wrap: wrap; }
+.tag{
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  color: var(--line);
+  background: var(--hover-tint);
+}
+/* rotating three-color signal system so the tag row itself reads as
+   maximalist confetti rather than one flat tone */
+.tag:nth-of-type(3n+1){ border-color: var(--maroon-bright); color: var(--maroon-bright); background: rgba(91,141,239,0.12); }
+.tag:nth-of-type(3n+2){ border-color: var(--amber-bright); color: var(--amber-bright); background: rgba(62,107,176,0.14); }
+.tag:nth-of-type(3n+3){ border-color: var(--cyan-bright); color: var(--cyan-bright); background: rgba(58,74,158,0.14); }
+
+/* two-column layout: media on one side, description + gallery on the
+   other. .project--reverse (applied to alternating <article>s) flips
+   which side each column sits on via the `order` property. */
+.project__body{
+  padding: 24px 26px 28px;
+  display: grid;
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+  gap: 30px;
+  align-items: start;
+}
+.project__media-col{ order: 1; min-width: 0; }
+.project__info-col{ order: 2; min-width: 0; }
+.project--reverse .project__media-col{ order: 2; }
+.project--reverse .project__info-col{ order: 1; }
+
+/* EDIT: PROJECT media — replace .media-placeholder with, e.g.:
+   <video controls poster="project1-poster.jpg" style="width:100%;display:block;">
+     <source src="project1-demo.mp4" type="video/mp4">
+   </video>
+   or  <img src="project1-demo.gif" alt="Project demo" style="width:100%;display:block;"> */
+.media-placeholder{
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: 1px solid var(--line-faint);
+  background: var(--panel-soft);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap: 10px;
+  color: var(--line-soft);
+}
+.media-placeholder svg{ width: 30px; height: 30px; opacity: 0.6; }
+.media-placeholder span{ font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; }
+.media-placeholder span.dim{ opacity: 0.6; font-size: 10.5px; }
+
+.project__media{
+  width: 100%;
+  aspect-ratio: 16/9;
+  display:block;
+  object-fit: cover;
+  background: var(--panel-soft);
+  border: 1px solid var(--line-faint);
+}
+
+/* video zoom button — sits in the corner of the video, opens the
+   enlarged video lightbox below. The video itself already has native
+   controls (play/pause/scrub/rewind) at this small size. */
+.project__video-wrap{ position: relative; aspect-ratio: 16/9; overflow: hidden; }
+.project__video-wrap iframe{ position: absolute; inset: 0; width: 100%; height: 100%; display: block; border: 0; }
+
+/* ── custom YouTube overlay controls ──────────────────────────
+   native controls stay off (controls=0) permanently; this bar is
+   the only UI, and it's invisible until the video is hovered. */
+.yt-controls{
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px;
+  background: linear-gradient(to top, rgba(9,13,22,0.65), rgba(9,13,22,0));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 2;
+}
+.project__video-wrap:hover .yt-controls,
+.project__video-wrap:focus-within .yt-controls{
+  opacity: 1;
+  pointer-events: auto;
+}
+.yt-controls__btn{
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(9,13,22,0.55);
+  border: 1px solid var(--line-faint);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.yt-controls__btn:hover{ background: rgba(30,58,107,0.65); border-color: var(--maroon-bright); }
+.yt-controls__btn svg{ width: 15px; height: 15px; flex: 0 0 auto; }
+.project__video-zoom{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(9,13,22,0.55);
+  border: 1px solid var(--line-faint);
+  color: #fff;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.project__video-zoom:hover{ background: rgba(30,58,107,0.65); border-color: var(--maroon-bright); }
+.project__video-zoom svg{ width: 16px; height: 16px; flex: 0 0 auto; }
+
+.project__desc{ color: var(--line-soft); max-width: 76ch; font-size: 15.5px; margin-bottom: 18px; }
+.project__desc strong{ color: var(--line); font-weight: 500; }
+
+/* project description bullets — minimal, matches the site's existing
+   square-marker list style (no boxes/panels, just clean line items) */
+.project__desc-list{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  max-width: 76ch;
+}
+.project__desc-list li{
+  position: relative;
+  padding-left: 20px;
+  color: var(--line-soft);
+  font-size: 15.5px;
+  line-height: 1.6;
+}
+.project__desc-list li::before{
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--maroon-bright);
+}
+.project__desc-list li strong{ color: var(--line); font-weight: 500; }
+
+/* plain divider line between the video/media and the gallery below it
+   (previously had a text label here — now just the hairline) */
+.project__media-divider{
+  height: 1px;
+  background: var(--line-faint);
+  margin: 20px 0 18px;
+}
+
+/* ============================================================
+   GALLERY — scrollable strip, 3 visible, arrows always on top
+   ============================================================ */
+.gallery-wrap{
+  position: relative;
+  /* side padding makes room for the arrow buttons that sit outside.
+     kept tight (rather than a wide bleed) so the gallery stays inside
+     its own column and doesn't creep into the media column next to it
+     in the two-column project layout. */
+  padding: 0 28px;
+  margin: 0 -20px;
+}
+@media (max-width: 760px){
+  /* tighter side padding so cells get more room on small screens —
+     2 cells visible at this width (see PER_PAGE() in the script) */
+  .gallery-wrap{ padding: 0 28px; margin: 0 -20px; }
+}
+@media (max-width: 560px){
+  /* 1 cell visible at a time on phones */
+  .gallery-wrap{ padding: 0 24px; margin: 0 -16px; }
+}
+
+/* clipping window — vertical room is left open so a hovered cell's
+   lift/scale isn't clipped by this container's top/bottom edges */
+.gallery-viewport{
+  overflow-x: hidden;
+  overflow-y: visible;
+  width: 100%;
+  padding: 10px 0 14px;
+  margin: -10px 0 -14px;
+}
+
+/* the sliding row — wider than viewport so items can slide in */
+.gallery-strip{
+  display: flex;
+  gap: 12px;
+  /* width is set by JS based on item count */
+  transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: grab;
+  user-select: none;
+  position: relative;
+}
+.gallery-strip.is-dragging{ cursor: grabbing; transition: none; }
+
+/* each cell = exactly 1/3 of the viewport minus gaps */
+.gallery-cell{
+  flex: 0 0 calc((100% - 24px) / 3);
+  aspect-ratio: 4 / 3;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border: 2px solid var(--line-faint);
+  background: var(--panel-soft);
+  cursor: pointer;
+  transition:
+    transform    0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow   0.22s ease,
+    border-color 0.2s ease;
+}
+.gallery-cell:hover{
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 0 var(--maroon-bright);
+  border-color: var(--maroon-bright);
+  z-index: 5;
+}
+.gallery-cell img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  pointer-events:none;
+  transition:transform .22s cubic-bezier(0.34,1.56,0.64,1);
+}
+.gallery-cell:hover img{
+  transform: scale(1.06);
+}
+.gallery-cell::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  border:2px solid transparent;
+  pointer-events:none;
+  z-index:10;
+  transition:border-color .22s ease;
+}
+
+.gallery-cell:hover::before{
+  border-color:var(--maroon-bright);
+}
+.gallery-cell{
+  isolation: isolate;
+}
+.img-placeholder{
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--line-soft);
+}
+.img-placeholder svg{ width: 22px; height: 22px; opacity: 0.5; }
+
+/* tinted overlay on hover */
+.gallery-cell::after{
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(30,58,107,0);
+  transition: background 0.2s ease;
+  pointer-events: none;
+}
+.gallery-cell:hover::after{ background: rgba(30,58,107,0.08); }
+
+/* zoom badge */
+.gallery-cell__zoom{
+  position: absolute;
+  bottom: 8px; right: 8px;
+  width: 30px; height: 30px;
+  background: var(--maroon);
+  color: var(--on-maroon);
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 2px;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  pointer-events: none;
+  z-index: 4;
+}
+.gallery-cell:hover .gallery-cell__zoom{ opacity: 1; transform: scale(1); }
+.gallery-cell__zoom svg{ width: 15px; height: 15px; }
+
+/* touch devices have no hover — show the zoom badge by default so it's
+   clear the image is tappable, instead of relying on a hover state
+   that will never trigger */
+@media (hover: none){
+  .gallery-cell__zoom{ opacity: 0.85; transform: scale(1); }
+}
+
+/* ── arrow buttons ── always above everything ── */
+.gallery-arrow{
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  width: 34px; height: 34px;
+  background: var(--panel-soft);
+  border: 1px solid var(--line-faint);
+  color: var(--line);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  border-radius: 2px;
+  z-index: 10;                        /* always on top */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  transition: border-color 0.18s, color 0.18s, background 0.18s, box-shadow 0.18s;
+}
+.gallery-arrow:hover{
+  border-color: var(--maroon-bright);
+  color: var(--maroon-bright);
+  background: var(--panel-hover);
+  box-shadow: 0 4px 14px rgba(30,58,107,0.18);
+}
+.gallery-arrow svg{ width: 14px; height: 14px; }
+.gallery-arrow--prev{ left: 0; }
+.gallery-arrow--next{ right: 0; }
+.gallery-arrow:disabled{ opacity: 0.25; pointer-events: none; }
+
+@media (hover: none){
+  /* slightly larger tap target on touch devices, no hover state needed */
+  .gallery-arrow{ width: 38px; height: 38px; }
+}
+
+/* dot indicators */
+.gallery-dots{
+  display: flex; gap: 6px; justify-content: center;
+  margin-top: 12px;
+}
+.gallery-dot{
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--line-faint);
+  border: 1px solid rgba(224,231,247,0.4);
+  padding: 0; cursor: pointer;
+  transition: background 0.18s, transform 0.18s, border-color 0.18s;
+}
+.gallery-dot.is-active{
+  background: var(--maroon-bright);
+  border-color: var(--maroon-bright);
+  transform: scale(1.4);
+}
+
+/* ============================================================
+   LIGHTBOX
+   ============================================================ */
+.lightbox{
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(8,11,20,0.93);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.22s ease;
+}
+.lightbox.is-open{ opacity: 1; pointer-events: all; }
+
+.lightbox__inner{
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  max-width: 90vw; max-height: 92vh;
+}
+
+.lightbox__img{
+  display: block;
+  max-width: 88vw; max-height: 78vh;
+  object-fit: contain;
+  border: 1px solid rgba(255,255,255,0.28);
+  box-shadow: 0 28px 80px rgba(0,0,0,0.75);
+  background: #111;
+  transition: opacity 0.15s ease;
+}
+.lightbox__img.is-loading{ opacity: 0.3; }
+
+.lightbox__close{
+  position: absolute; top: -44px; right: 0;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.45);
+  color: rgba(255,255,255,0.8);
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border-radius: 2px;
+  font-size: 17px; line-height: 1;
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
+}
+.lightbox__close:hover{ border-color: var(--maroon-bright); color: #fff; background: rgba(30,58,107,0.3); }
+
+.lightbox__nav{
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  width: 42px; height: 42px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.4);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border-radius: 2px;
+  z-index: 3;
+  transition: background 0.18s, border-color 0.18s;
+}
+.lightbox__nav:hover{ background: rgba(30,58,107,0.5); border-color: var(--maroon-bright); }
+.lightbox__nav:disabled{ opacity: 0.2; pointer-events: none; }
+.lightbox__nav svg{ width: 17px; height: 17px; }
+.lightbox__nav--prev{ left: -58px; }
+.lightbox__nav--next{ right: -58px; }
+
+.lightbox__counter{
+  font-family: var(--font-mono); font-size: 11px;
+  color: rgba(255,255,255,0.4); letter-spacing: 0.1em;
+}
+
+/* video lightbox — enlarged, zoomed-in view of a project video with
+   native controls (play/pause/scrub/rewind) */
+.lightbox__inner--video{ max-width: 92vw; }
+.lightbox__video{
+  display: block;
+  max-width: 90vw;
+  max-height: 84vh;
+  border: 1px solid rgba(255,255,255,0.28);
+  box-shadow: 0 28px 80px rgba(0,0,0,0.75);
+  background: #000;
+}
+
+@media (max-width: 700px){
+  /* On narrow screens the prev/next buttons normally sit 58px outside
+     the image (lightbox__nav--prev/next), which gets pushed off the
+     edge of the screen and becomes unreachable. Pin them to the
+     viewport instead so they're always visible and tappable, and
+     shrink the image a bit to leave clear room for them + the close
+     button without anything overlapping. */
+  .lightbox__inner{ max-width: 100vw; max-height: 100vh; gap: 10px; }
+  .lightbox__img{ max-width: 86vw; max-height: 68vh; }
+  .lightbox__close{ top: 14px; right: 14px; position: fixed; }
+  .lightbox__nav{ position: fixed; top: 50%; width: 38px; height: 38px; }
+  .lightbox__nav--prev{ left: 8px; }
+  .lightbox__nav--next{ right: 8px; }
+}
+
+/* ============================================================
+   ABOUT
+   ============================================================ */
+.about-hero-row{
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 40px;
+  align-items: start;
+  margin-bottom: 34px;
+}
+.about-intro{ min-width: 0; }
+.about-text{ max-width: 70ch; color: var(--line-soft); margin-bottom: 0; font-size: 16px; }
+.about-text strong{ color: var(--line); font-weight: 500; }
+
+.about-figure{
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  margin-top: 95px;
+  overflow: hidden;
+  position: relative;
+  border: 2px solid var(--line);
+  background: var(--panel-soft);
+  box-shadow: 7px 7px 0 0 var(--cyan-bright);
+}
+.about-figure img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.about-figure .img-placeholder{ flex-direction: column; gap: 8px; }
+.about-figure .img-placeholder svg{ width: 30px; height: 30px; }
+.about-figure .img-placeholder span{
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+}
+@media (max-width: 700px){
+  .about-hero-row{ grid-template-columns: 1fr; }
+  .about-figure{ max-width: 280px; margin: 0 auto; }
+}
+
+.spec-table{
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.spec-table caption{
+  text-align: left;
+  font-weight: 600;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--bg);
+  background: var(--amber-bright);
+  padding: 4px 10px;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+.spec-table tr{ border-top: 1px solid var(--line-faint); }
+.spec-table tr:last-child{ border-bottom: 1px solid var(--line-faint); }
+.spec-table tr:nth-child(even){ background: var(--hover-tint); }
+.spec-table th, .spec-table td{
+  text-align:left;
+  padding: 12px 14px;
+  vertical-align: top;
+}
+.spec-table th{
+  width: 200px;
+  color: var(--maroon-bright);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  border-left: 3px solid var(--cyan-bright);
+}
+.spec-table td{ color: var(--line-soft); }
+
+@media (max-width: 560px){
+  .spec-table{ font-size: 12px; }
+  .spec-table th{ width: 112px; padding: 10px 8px; }
+  .spec-table td{ padding: 10px 8px; }
+}
+
+.about-skills{
+  margin-top: 34px;
+  display:flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.skill-block{
+  display:flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line-faint);
+}
+.skill-block label{
+  flex: 0 0 auto;
+  width: 150px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  color: var(--maroon-bright);
+}
+.skill-block ul{
+  margin:0;
+  padding:0;
+  list-style:none;
+  display:flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1 1 auto;
+}
+.skill-block li{
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--line-soft);
+  border: 1px solid var(--line);
+  padding: 5px 12px;
+  white-space: nowrap;
+}
+@media (max-width: 560px){
+  .skill-block{ flex-direction: column; align-items: flex-start; gap: 8px; }
+  .skill-block label{ width: auto; }
+}
+
+/* ============================================================
+   RESUME
+   ============================================================ */
+.resume-wrap{
+  display:flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+}
+.resume-meta{ font-family: var(--font-body); font-size: 13.5px; color: var(--line-soft); }
+.resume-meta b{ color: var(--line); font-weight: 600; }
+
+/* EDIT: RESUME — point this at your actual file. Place resume.pdf
+   next to index.html (or change the src/href paths below). */
+.resume-preview{
+  border: 1px solid var(--line-faint);
+  background: var(--panel-soft);
+  aspect-ratio: 8.5/11;
+  width: 100%;
+  position: relative;
+  overflow:hidden;
+}
+.resume-preview object{
+  width: 100%; height: 100%;
+  display:block;
+}
+.resume-preview .fallback{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap: 10px; padding: 20px; text-align:center;
+  color: var(--line-soft); font-family: var(--font-mono); font-size: 12px;
+}
+.resume-preview .fallback svg{ width: 30px; height: 30px; opacity: 0.6; }
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap: 9px;
+  width: 100%;
+  padding: 13px 16px;
+  background: var(--maroon-bright);
+  border: 1px solid var(--line);
+  color: var(--bg);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 0 var(--line);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn:hover{ background: var(--amber-bright); transform: translate(-2px,-2px); box-shadow: 6px 6px 0 0 var(--line); }
+.btn svg{ width: 15px; height: 15px; flex: 0 0 auto; }
+.btn--ghost{ background: var(--cyan-bright); color: var(--bg); }
+.btn--ghost:hover{ background: var(--amber-bright); }
+.btn--inline{ width: auto; padding: 12px 20px; }
+
+/* ============================================================
+   CONTACT
+   ============================================================ */
+.contact-wrap{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+@media (max-width: 860px){ .contact-wrap{ grid-template-columns: 1fr; } .contact-form{ margin-top: 0; } }
+
+.contact-list{ list-style:none; margin:0; padding:0; }
+.contact-list li{
+  border-bottom: 1px solid var(--line-faint);
+  padding: 16px 0;
+}
+.contact-list li:first-child{ border-top: 1px solid var(--line-faint); }
+.contact-row{
+  display:flex;
+  align-items:center;
+  gap: 14px;
+  color: var(--line);
+  text-decoration:none;
+}
+.contact-row:hover .contact-row__val{ color: var(--maroon-bright); }
+.contact-row__icon{ width: 18px; height:18px; color: var(--maroon-bright); flex: 0 0 auto; }
+.contact-row__label{ font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; color: var(--line-soft); display:block; }
+.contact-row__val{ font-size: 14.5px; transition: color 0.18s ease; }
+
+.contact-form{ display:flex; flex-direction:column; gap: 14px; margin-top: -48px; }
+.field{ display:flex; flex-direction:column; gap: 6px; }
+.field label{ font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; color: var(--line-soft); }
+.field input, .field textarea{
+  background: var(--panel-soft);
+  border: 1px solid var(--line-faint);
+  color: var(--line);
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 11px 12px;
+  border-radius: var(--radius);
+  resize: vertical;
+}
+.field input:focus, .field textarea:focus{ outline: none; border-color: var(--maroon-bright); }
+.field textarea{ min-height: 110px; }
+.form-note{ font-family: var(--font-mono); font-size: 10.5px; color: var(--line-soft); opacity: 0.75; }
+
+@media (max-width: 760px){
+  /* iOS Safari zooms the page in when focusing an input smaller than
+     16px — bumping the font size here stops that jump */
+  .field input, .field textarea{ font-size: 16px; }
+}
+
+/* ============================================================
+   RESPONSIVE — MOBILE SIDEBAR -> TOP BAR
+   ============================================================ */
+@media (max-width: 760px){
+  .sidebar{
+    position: fixed;
+    top:0; left:0; right:0; bottom:auto;
+    width: 100%;
+    height: 56px;
+    flex-direction: row;
+    border-right:none;
+    border-bottom: 3px solid var(--line);
+    box-shadow: 0 4px 0 0 var(--maroon-bright), 0 8px 0 0 rgba(58,74,158,0.4);
+  }
+  .app.is-collapsed .sidebar{ width: 100%; height: 56px; }
+  .sidebar__head{ border-bottom:none; border-right: 1px solid var(--line-faint); padding: 0 12px; flex:0 0 auto; }
+  .sidebar__toggle{ width: 30px; height: 30px; }
+  .sidebar__brand{ display:none; }
+  .sidebar__nav{ flex-direction: row; padding: 0; overflow: hidden; }
+  .navtab{ flex: 1 1 0; min-width: 0; flex-direction: column; gap: 2px; padding: 8px 4px; border-left:none; border-bottom: 2px solid transparent; }
+  .navtab.is-active{ border-left:none; border-bottom-color: var(--maroon-bright); }
+  .navtab__num{ display:none; }
+  .navtab__label{ opacity:1; font-size: 8.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .navtab__icon{ width: 18px; height: 18px; }
+  .theme-toggle{ margin-top: 0; border-top: none; }
+  .sidebar__foot{ display:none; }
+
+  .content{ margin-left:0; margin-top: 56px; padding: 24px 16px 56px; }
+  .app.is-collapsed .content{ margin-left:0; }
+  .sheet{ padding: 24px 18px; }
+  .sheet__title{ font-size: clamp(24px, 7vw, 32px); }
+
+  .home-meta{ gap: 16px 24px; }
+
+  /* project cards: tighter padding, title/tags stack instead of
+     fighting for the same row */
+  .project__head{ padding: 16px 16px 14px; gap: 10px; }
+  .project__title{ font-size: 18px; }
+  .project__body{ padding: 18px 16px 22px; }
+  .project__tags{ gap: 6px; }
+  .tag{ font-size: 9.5px; padding: 4px 8px; }
+
+  /* about: skill columns stack to one per row on phones */
+  .about-skills{ grid-template-columns: 1fr; gap: 22px; }
+}
+
+@media (max-width: 480px){
+  /* extra-narrow phones: drop the gallery side padding further */
+  .gallery-wrap{ padding: 0 22px; margin: 0 -12px; }
+  .navtab{ padding: 8px 2px; }
+  .navtab__label{ font-size: 7.5px; }
+  .home-meta{ flex-direction: column; align-items: center; gap: 14px; }
+}
+
+/* ============================================================
+   LIGHT MODE ONLY — dark mode's untouched below is the source of
+   truth for the hard-edged "3D" style; here we only (a) recolor the
+   handful of shadows/fills that were hardcoded to dark mode's bright
+   blue so they match the darker light-mode accent, and (b) soften
+   the big hero-name text-shadow, which is the one place the crisp
+   double-offset reads as too harsh on a light background.
+   ============================================================ */
+html[data-theme="light"] .home-name{
+  text-shadow: 3px 3px 0 rgba(47,85,160,0.6), 6px 6px 10px rgba(42,56,120,0.28);
+}
+html[data-theme="light"] .navtab:nth-of-type(3n+1).is-active{
+  background: rgba(47,85,160,0.16);
+}
+html[data-theme="light"] .tag:nth-of-type(3n+1){
+  background: rgba(47,85,160,0.12);
+}
+html[data-theme="light"] .project:hover{
+  box-shadow: 9px 9px 0 0 rgba(47,85,160,0.45);
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ============================================================
+       SIDEBAR / TAB MENU
+       ============================================================ -->
+  <aside class="sidebar">
+    <div class="sidebar__head">
+      <button class="sidebar__toggle" id="sidebarToggle" aria-label="Collapse menu" aria-expanded="true">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M13 4L7 10l6 6"/></svg>
+      </button>
+      <div class="sidebar__brand">M. TRAN<br>PORTFOLIO</div>
+    </div>
+
+    <nav class="sidebar__nav" aria-label="Section navigation">
+      <button class="navtab is-active" data-target="home" aria-label="Home section">
+        <span class="navtab__icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 9.5L10 3l7 6.5"/><path d="M5 8v8.5h10V8"/></svg>
+        </span>
+        <span class="navtab__num">01</span>
+        <span class="navtab__label">HOME</span>
+      </button>
+
+      <button class="navtab" data-target="projects" aria-label="Projects section">
+        <span class="navtab__icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="9" height="9"/><rect x="8" y="8" width="9" height="9"/></svg>
+        </span>
+        <span class="navtab__num">02</span>
+        <span class="navtab__label">PROJECTS</span>
+      </button>
+
+      <button class="navtab" data-target="about" aria-label="About section">
+        <span class="navtab__icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="10" cy="6.5" r="3"/><path d="M4 17c0-3.5 2.7-6 6-6s6 2.5 6 6"/></svg>
+        </span>
+        <span class="navtab__num">03</span>
+        <span class="navtab__label">ABOUT</span>
+      </button>
+
+      <button class="navtab" data-target="resume" aria-label="Resume section">
+        <span class="navtab__icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 2.5h7l3 3v12H5z"/><path d="M12 2.5v3h3"/><path d="M7.5 10h5M7.5 12.5h5M7.5 15h3"/></svg>
+        </span>
+        <span class="navtab__num">04</span>
+        <span class="navtab__label">RESUME</span>
+      </button>
+
+      <button class="navtab" data-target="contact" aria-label="Contact section">
+        <span class="navtab__icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="4.5" width="15" height="11" rx="0.5"/><path d="M2.5 5.5L10 11l7.5-5.5"/></svg>
+        </span>
+        <span class="navtab__num">05</span>
+        <span class="navtab__label">CONTACT</span>
+      </button>
+
+      <button class="navtab theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Switch to light mode">
+        <span class="navtab__icon">
+          <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="10" cy="10" r="3.4"/><path d="M10 2.2v2.3M10 15.5v2.3M17.8 10h-2.3M4.5 10H2.2M15.5 4.5l-1.6 1.6M6.1 13.9l-1.6 1.6M15.5 15.5l-1.6-1.6M6.1 6.1L4.5 4.5"/></svg>
+          <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 12.3A6.8 6.8 0 1 1 7.7 3.5a5.3 5.3 0 0 0 8.8 8.8z"/></svg>
+        </span>
+        <span class="navtab__label" id="themeToggleLabel">LIGHT MODE</span>
+      </button>
+    </nav>
+
+    <div class="sidebar__foot">© 2026 — M. TRAN</div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN CONTENT
+       ============================================================ -->
+  <main class="content" id="content">
+
+    <!-- ============ HOME ============ -->
+    <section class="sheet" id="home" data-title="HOME" data-sheet="01">
+      <span class="sheet__corner-tl"></span><span class="sheet__corner-br"></span>
+      <div class="sheet__eyebrow">PORTFOLIO — SHEET 01</div>
+      <div class="sheet__hr"></div>
+
+      <div class="home-hero-row">
+        <!-- left: text -->
+        <div class="home-text-col">
+          <h1 class="home-name">MICHAEL TRAN</h1>
+          <div class="home-role">Mechanical Engineering Honors Student · Math Minor · Texas A&amp;M University</div>
+          <p class="home-tagline">
+            Welcome to my digital portfolio! I'm a mechanical engineering student currently interested in prototyping and mechanical design. This website showcases some of my engineering and coding projects I've been building. Take a look!
+            <!-- EDIT: rewrite this tagline in your own voice -->
+          </p>
+
+          <div class="home-cta">
+            <button class="btn btn--inline" data-target="projects" data-nav-trigger>
+              VIEW MY PROJECTS!
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- right: hero image — EDIT: swap placeholder for <img src="hero.jpg" …> -->
+        <div class="hero-figure">
+          <img src="output.jpg" alt="Michael Tran">
+        </div>
+      </div>
+
+      <div class="home-meta">
+        <div class="home-meta__item"><label>FOCUS AREA</label><div>Mechanical Design</div></div>
+        <div class="home-meta__item"><label>EXPECTED GRAD</label><div>May 2029</div></div>
+        <div class="home-meta__item"><label>LOCATION</label><div>College Station, TX</div></div>
+        <div class="home-meta__item"><label>AVAILABILITY</label><div>Open to internships &amp; co-ops</div></div>
+        <!-- EDIT: update these as your situation changes -->
+      </div>
+    </section>
+
+    <!-- ============ PROJECTS ============ -->
+    <section class="sheet" id="projects" data-title="PROJECTS" data-sheet="02" hidden>
+      <span class="sheet__corner-tl"></span><span class="sheet__corner-br"></span>
+      <div class="sheet__eyebrow">PORTFOLIO — SHEET 02</div>
+      <div class="sheet__hr"></div>
+      <h2 class="sheet__title">Projects</h2>
+      <p class="sheet__subtitle">Engineering &amp; coding work with demo, writeup, and concept images.</p>
+
+      <!-- EDIT: PROJECT 1 -->
+      <div class="project-observe">
+      <article class="project">
+        <div class="project__head">
+          <div>
+            <div class="project__id">PROJECT 01</div>
+            <h3 class="project__title">Trash Collecting RC Boat</h3>
+          </div>
+          <div class="project__tags">
+            <span class="tag">MECHANICAL DESIGN</span>
+            <span class="tag">SOLIDWORKS</span>
+            <span class="tag">EMBEDDED SYSTEMS</span>
+          </div>
+        </div>
+        <div class="project__body">
+          <div class="project__media-col">
+          <div class="project__video-wrap">
+            <div id="yt-boat" class="project__media project-yt-frame" data-yt-id="NWnebz-NGHE"></div>
+            <div class="yt-controls" data-yt-controls-for="yt-boat">
+              <button class="yt-controls__btn" type="button" data-yt-action="playpause" aria-label="Play or pause"></button>
+              <button class="yt-controls__btn" type="button" data-yt-action="mute" aria-label="Mute or unmute"></button>
+            </div>
+          </div>
+          <div class="project__media-divider"></div>
+          <!-- GALLERY: add as many .gallery-cell blocks as you want -->
+          <div class="gallery-wrap">
+            <button class="gallery-arrow gallery-arrow--prev" aria-label="Previous"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 4L7 10l6 6"/></svg></button>
+            <div class="gallery-viewport">
+              <div class="gallery-strip">
+                <div class="gallery-cell">
+                  <img src="boat image 1.jpg" alt="Concept sketch 1">
+                  <span class="gallery-cell__zoom"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8.5" cy="8.5" r="5"/><path d="M17 17l-4-4"/><path d="M8.5 6v5M6 8.5h5"/></svg></span>
+                </div>
+                <div class="gallery-cell">
+                  <img src="boat image 2.jpg" alt="Concept sketch 1">
+                  <span class="gallery-cell__zoom"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8.5" cy="8.5" r="5"/><path d="M17 17l-4-4"/><path d="M8.5 6v5M6 8.5h5"/></svg></span>
+                </div>
+                <div class="gallery-cell">
+                  <div class="img-placeholder"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2.5" y="3.5" width="15" height="13"/><path d="M2.5 13l4-4 3 3 4-5 3.5 6"/></svg></div>
+                  <span class="gallery-cell__zoom"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8.5" cy="8.5" r="5"/><path d="M17 17l-4-4"/><path d="M8.5 6v5M6 8.5h5"/></svg></span>
+                </div>
+                <div class="gallery-cell">
+                  <div class="img-placeholder"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2.5" y="3.5" width="15" height="13"/><path d="M2.5 13l4-4 3 3 4-5 3.5 6"/></svg></div>
+                  <span class="gallery-cell__zoom"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8.5" cy="8.5" r="5"/><path d="M17 17l-4-4"/><path d="M8.5 6v5M6 8.5h5"/></svg></span>
+                </div>
+                <div class="gallery-cell">
+                  <div class="img-placeholder"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2.5" y="3.5" width="15" height="13"/><path d="M2.5 13l4-4 3 3 4-5 3.5 6"/></svg></div>
+                  <span class="gallery-cell__zoom"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8.5" cy="8.5" r="5"/><path d="M17 17l-4-4"/><path d="M8.5 6v5M6 8.5h5"/></svg></span>
+                </div>
+              </div>
+            </div>
+            <button class="gallery-arrow gallery-arrow--next" aria-label="Next"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4l6 6-6 6"/></svg></button>
+            <div class="gallery-dots"></div>
+          </div>
+          </div>
+          <div class="project__info-col">
+          <ul class="project__desc-list">
+            <!-- EDIT: replace with your real project description -->
+            <li>Designed and 3D-printed a remote-controlled catamaran to clear debris off the surfaces of lakes and ponds to make small-scale water pollution cleanup more efficient and less labor-intensive.</li>
+            <li>Modeled the chassis and propellers via SolidWorks and 3D-printed the parts using Bambu Studio software and printers.</li>
+            <li>Programmed an ESP32 microcontroller in C++ using Arduino IDE to control two TT motors and integrated wireless smartphone control using Blynk IoT.</li>
+            <li>Iterated electronics enclosures and hull design to minimize heat warping and optimize buoyancy after field testing in local pond environments.</li>
+          </ul>
+          </div>
+        </div>
+      </article>
+      </div>
+      <div class="project-observe">
+      <article class="project project--reverse">
+        <div class="project__head">
+          <div>
+            <div class="project__id">PROJECT 02</div>
+            <h3 class="project__title">Multiplayer Stimulation Clicker</h3>
+          </div>
+          <div class="project__tags">
+            <span class="tag">PYTHON</span>
+            <span class="tag">PYGAME</span>
+            <span class="tag">GAME DEVELOPMENT</span>
+          </div>
+        </div>
+        <div class="project__body">
+          <div class="project__media-col">
+          <div class="project__video-wrap">
+            <div id="yt-game" class="project__media project-yt-frame" data-yt-id="8c_xIJKOnpw"></div>
+            <div class="yt-controls" data-yt-controls-for="yt-game">
+              <button class="yt-controls__btn" type="button" data-yt-action="playpause" aria-label="Play or pause"></button>
+              <button class="yt-controls__btn" type="button" data-yt-action="mute" aria-label="Mute or unmute"></button>
+            </div>
+          </div>
+          <div class="project__media-divider"></div>
+          <div class="gallery-wrap">
+            <button class="gallery-arrow gallery-arrow--prev" aria-label="Previous"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 4L7 10l6 6"/></svg></button>
+            <div class="gallery-viewport">
+              <div class="gallery-strip">
+                <div class="gallery-cell">
+                  <img src="Top Down Diagram.jpg" alt="Concept sketch 1">
+                  <span class="gallery-cell__zoom"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8.5" cy="8.5" r="5"/><path d="M17 17l-4-4"/><path d="M8.5 6v5M6 8.5h5"/></svg></span>
+                </div>
+                <div class="gallery-cell">
+                  <img src="game image 2.jpg" alt="Concept sketch 1">
+                  <span class="gallery-cell__zoom"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8.5" cy="8.5" r="5"/><path d="M17 17l-4-4"/><path d="M8.5 6v5M6 8.5h5"/></svg></span>
+                </div>
+                <div class="gallery-cell">
+                  <img src="game image 3.jpg" alt="Concept sketch 1">
+                  <span class="gallery-cell__zoom"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8.5" cy="8.5" r="5"/><path d="M17 17l-4-4"/><path d="M8.5 6v5M6 8.5h5"/></svg></span>
+                </div>
+                <div class="gallery-cell">
+                  <img src="game image 4.jpg" alt="Concept sketch 1">
+                  <span class="gallery-cell__zoom"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8.5" cy="8.5" r="5"/><path d="M17 17l-4-4"/><path d="M8.5 6v5M6 8.5h5"/></svg></span>
+                </div>
+                <div class="gallery-cell">
+                  <img src="game image 5.jpg" alt="Concept sketch 1">
+                  <span class="gallery-cell__zoom"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8.5" cy="8.5" r="5"/><path d="M17 17l-4-4"/><path d="M8.5 6v5M6 8.5h5"/></svg></span>
+                </div>
+              </div>
+            </div>
+            <button class="gallery-arrow gallery-arrow--next" aria-label="Next"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4l6 6-6 6"/></svg></button>
+            <div class="gallery-dots"></div>
+          </div>
+          </div>
+          <div class="project__info-col">
+          <ul class="project__desc-list">
+            <!-- EDIT: replace with your real project description -->
+            <li>Developed a remake of the online clicker game "Stimulation Clicker" in Python utilizing Pygame while adding multiplayer functionality, original minigames, unique upgrades, and new challenges to enhance the game's complexity and competitiveness.</li>
+            <li>Established a game state system to manage transitions between menu, gameplay, shop, scoreboard, and pause states</li>
+            <li>Created custom classes for individual game assets to easily handle animation and player interaction.</li>
+            <li>Balanced upgrade costs and minigame difficulty through multiple rounds of playtesting to keep progression rewarding and engaging.</li>
+          </ul>
+          </div>
+        </div>
+      </article>
+      </div>
+
+      <!-- EDIT: PROJECT 3 -->
+      <div class="project-observe">
+      <article class="project">
+        <div class="project__head">
+          <div>
+            <div class="project__id">PROJECT 03</div>
+            <h3 class="project__title">Life-Sized Trebuchet</h3>
+          </div>
+          <div class="project__tags">
+            <span class="tag">APPLIED MECHANICS</span>
+            <span class="tag">WOODWORKING</span>
+          </div>
+        </div>
+        <div class="project__body">
+          <div class="project__media-col">
+          <div class="project__video-wrap">
+            <div id="yt-trebuchet" class="project__media project-yt-frame" data-yt-id="jjuLVTij8sw"></div>
+            <div class="yt-controls" data-yt-controls-for="yt-trebuchet">
+              <button class="yt-controls__btn" type="button" data-yt-action="playpause" aria-label="Play or pause"></button>
+              <button class="yt-controls__btn" type="button" data-yt-action="mute" aria-label="Mute or unmute"></button>
+            </div>
+          </div>
+          <div class="project__media-divider"></div>
+          <div class="gallery-wrap">
+            <button class="gallery-arrow gallery-arrow--prev" aria-label="Previous"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 4L7 10l6 6"/></svg></button>
+            <div class="gallery-viewport">
+              <div class="gallery-strip">
+                <div class="gallery-cell">
+                  <img src="trebuchet image 1.jpg" alt="Concept sketch 1">
+                  <span class="gallery-cell__zoom"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8.5" cy="8.5" r="5"/><path d="M17 17l-4-4"/><path d="M8.5 6v5M6 8.5h5"/></svg></span>
+                </div>
+                <div class="gallery-cell">
+                  <img src="trebuchet image 2.jpg" alt="Concept sketch 1">
+                  <span class="gallery-cell__zoom"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8.5" cy="8.5" r="5"/><path d="M17 17l-4-4"/><path d="M8.5 6v5M6 8.5h5"/></svg></span>
+                </div>
+                <div class="gallery-cell">
+                  <img src="trebuchet image 3.jpg" alt="Concept sketch 1">
+                  <span class="gallery-cell__zoom"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8.5" cy="8.5" r="5"/><path d="M17 17l-4-4"/><path d="M8.5 6v5M6 8.5h5"/></svg></span>
+                </div>
+                <div class="gallery-cell">
+                  <div class="img-placeholder"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2.5" y="3.5" width="15" height="13"/><path d="M2.5 13l4-4 3 3 4-5 3.5 6"/></svg></div>
+                  <span class="gallery-cell__zoom"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8.5" cy="8.5" r="5"/><path d="M17 17l-4-4"/><path d="M8.5 6v5M6 8.5h5"/></svg></span>
+                </div>
+                <div class="gallery-cell">
+                  <div class="img-placeholder"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2.5" y="3.5" width="15" height="13"/><path d="M2.5 13l4-4 3 3 4-5 3.5 6"/></svg></div>
+                  <span class="gallery-cell__zoom"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8.5" cy="8.5" r="5"/><path d="M17 17l-4-4"/><path d="M8.5 6v5M6 8.5h5"/></svg></span>
+                </div>
+              </div>
+            </div>
+            <button class="gallery-arrow gallery-arrow--next" aria-label="Next"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4l6 6-6 6"/></svg></button>
+            <div class="gallery-dots"></div>
+          </div>
+          </div>
+          <div class="project__info-col">
+          <ul class="project__desc-list">
+            <!-- EDIT: replace with your real project description -->
+            <li>Engineered and built a 6-foot tall trebuchet capable of launching a two pound projectile over 30 meters, demonstrating principles of torque and energy transfer</li>
+            <li>Simulated different arm lengths and projectile weights through VirtualTrebuchet to maximize launch distance given a 50-pound counterweight constraint.</li>
+            <li>Iterated through different release mechanisms and sling pouches after initial testing showed irregular launch angles</li>
+          </ul>
+          </div>
+        </div>
+      </article>
+      </div>
+    </section>
+
+    <!-- ============ ABOUT ============ -->
+    <section class="sheet" id="about" data-title="ABOUT" data-sheet="03" hidden>
+      <span class="sheet__corner-tl"></span><span class="sheet__corner-br"></span>
+      <div class="sheet__eyebrow">PORTFOLIO — SHEET 03</div>
+      <div class="sheet__hr"></div>
+      <!-- EDIT: ABOUT -->
+      <div class="about-hero-row">
+        <div class="about-intro">
+          <h2 class="sheet__title">About</h2>
+          <p class="sheet__subtitle">Background, education, and tools.</p>
+          <p class="about-text">
+            Howdy! My name is <strong>Michael Tran</strong>, and I am a sophomore Mechanical
+            Engineering Honors student at Texas A&amp;M University with a minor in Mathematics.
+            I'm a motivated, hardworking student, involved in a number of organizations including
+            TURTLE Robotics, The American Society of Mechanical Engineers, and the TAMU IGNITE
+            Design Challenge. I love exploring ways to turn ideas into working prototypes,
+            whether it be through CAD models or code, and I'm always open to learning something
+            new. As I move forward, I'm hoping to secure an internship or co-op in mechanical
+            design/prototyping. Outside of school, I am a cellist of 9 years and a figure skater!
+            <!-- EDIT: replace with your real bio — interests, clubs, research, internships -->
+          </p>
+        </div>
+
+        <!-- right: about photo -->
+        <div class="about-figure">
+          <img src="about-photo.jpg" alt="Michael Tran">
+        </div>
+      </div>
+
+      <table class="spec-table">
+        <caption>SPECIFICATIONS</caption>
+        <tr><th>Institution</th><td>Texas A&amp;M University</td></tr>
+        <tr><th>Program</th><td>B.S. Mechanical Engineering — Honors</td></tr>
+        <tr><th>Minor</th><td>Mathematics</td></tr>
+        <tr><th>Focus area</th><td>Mechanical design</td></tr>
+        <tr><th>Status</th><td>Undergraduate, Class of 2029 <!-- EDIT --></td></tr>
+        <tr><th>Location</th><td>College Station, TX <!-- EDIT --></td></tr>
+      </table>
+
+      <div class="about-skills">
+        <div class="skill-block">
+          <label>ENGINEERING TOOLS</label>
+          <ul>
+            <li>SolidWorks</li>
+            <li>Bambu Lab</li>
+            <li>VS Code</li>
+            <li>GitHub</li>
+          </ul>
+        </div>
+        <div class="skill-block">
+          <label>PROGRAMMING</label>
+          <ul>
+            <li>Python</li>
+            <li>Java</li>
+            <li>C++</li>
+          </ul>
+        </div>
+        <div class="skill-block">
+          <label>RELEVANT COURSEWORK</label>
+          <ul>
+            <li>Engineering Mechanics</li>
+            <li>Geometric Modeling</li>
+            <li>Differential Equations</li>
+          </ul>
+        </div>
+        <!-- EDIT: swap the lists above for your real tools / coursework -->
+      </div>
+    </section>
+
+    <!-- ============ RESUME ============ -->
+    <section class="sheet" id="resume" data-title="RESUME" data-sheet="04" hidden>
+      <span class="sheet__corner-tl"></span><span class="sheet__corner-br"></span>
+      <div class="sheet__eyebrow">PORTFOLIO — SHEET 04</div>
+      <div class="sheet__hr"></div>
+      <h2 class="sheet__title">Resume</h2>
+      <p class="sheet__subtitle">Preview below, or download the PDF directly.</p>
+
+      <div class="resume-wrap">
+        <div class="resume-meta"><b>Last updated: July 2026</b> <!-- EDIT: add date --></div>
+        <a class="btn btn--inline" href="Michael Tran Final Resume.pdf" download target="_blank" rel="noopener">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3v10M6 9l4 4 4-4"/><path d="M4 16h12"/></svg>
+          DOWNLOAD RESUME (PDF)
+        </a>
+
+        <!-- EDIT: RESUME -->
+        <div class="resume-preview">
+          <object data="Michael Tran Final Resume.pdf#toolbar=1&navpanes=0&view=FitH" type="application/pdf">
+            <div class="fallback">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 15h6M9 18h3"/></svg>
+              <span>No resume.pdf found yet.<br>Add a file named "resume.pdf" next to index.html.</span>
+            </div>
+          </object>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
+    <section class="sheet" id="contact" data-title="CONTACT" data-sheet="05" hidden>
+      <span class="sheet__corner-tl"></span><span class="sheet__corner-br"></span>
+      <div class="sheet__eyebrow">PORTFOLIO — SHEET 05</div>
+      <div class="sheet__hr"></div>
+      <h2 class="sheet__title">Contact</h2>
+      <p class="sheet__subtitle">Reach out directly, or send a message below.</p>
+
+      <div class="contact-wrap">
+        <!-- EDIT: CONTACT -->
+        <ul class="contact-list">
+          <li>
+            <a class="contact-row" href="mailto:michael.mht12@tamu.edu">
+              <span class="contact-row__icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="4.5" width="15" height="11" rx="0.5"/><path d="M2.5 5.5L10 11l7.5-5.5"/></svg></span>
+              <span><span class="contact-row__label">EMAIL</span><span class="contact-row__val">michael.mht12@tamu.edu</span></span>
+            </a>
+          </li>
+          <li>
+            <a class="contact-row" href="https://linkedin.com/in/michaelmht12" target="_blank" rel="noopener">
+              <span class="contact-row__icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="2.5" width="15" height="15" rx="1"/><path d="M6.5 8.5v6M6.5 6v.01M10.5 14.5v-3.5c0-1.2 1-2 2-2s2 .8 2 2v3.5M10.5 11v3.5"/></svg></span>
+              <span><span class="contact-row__label">LINKEDIN</span><span class="contact-row__val">linkedin.com/in/michaelmht12</span></span>
+            </a>
+          </li>
+          <li>
+            <a class="contact-row" href="tel:+13467329689">
+              <span class="contact-row__icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4.5 3.5h2.8l1 3.3-1.7 1.3a9 9 0 0 0 4.3 4.3l1.3-1.7 3.3 1v2.8c0 .6-.5 1-1 1-6 0-11-5-11-11 0-.5.4-1 1-1z"/></svg></span>
+              <span><span class="contact-row__label">PHONE</span><span class="contact-row__val">346-732-9689</span></span>
+            </a>
+          </li>
+        </ul>
+
+        <form class="contact-form" action="michael.mht12@tamu.edu" method="post" enctype="text/plain">
+          <div class="field">
+            <label for="name">NAME</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          <div class="field">
+            <label for="email">EMAIL</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          <div class="field">
+            <label for="message">MESSAGE</label>
+            <textarea id="message" name="message" required></textarea>
+          </div>
+          <button type="submit" class="btn btn--ghost" style="width:auto; align-self:flex-start; padding-left:24px; padding-right:24px;">SEND MESSAGE</button>
+          <span class="form-note">Opens your email client — for a backend-connected form, swap this for a service like Formspree.</span>
+        </form>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
+  <div class="lightbox__inner">
+    <button class="lightbox__close" id="lbClose" aria-label="Close">&#x2715;</button>
+    <button class="lightbox__nav lightbox__nav--prev" id="lbPrev" aria-label="Previous">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 4L7 10l6 6"/></svg>
+    </button>
+    <img class="lightbox__img" id="lbImg" src="" alt="">
+    <button class="lightbox__nav lightbox__nav--next" id="lbNext" aria-label="Next">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4l6 6-6 6"/></svg>
+    </button>
+    <div class="lightbox__counter" id="lbCounter"></div>
+  </div>
+</div>
+
+<!-- VIDEO LIGHTBOX — enlarged view with native play/pause/rewind controls -->
+<div class="lightbox lightbox--video" id="videoLightbox" role="dialog" aria-modal="true" aria-label="Video viewer">
+  <div class="lightbox__inner lightbox__inner--video">
+    <button class="lightbox__close" id="lbVideoClose" aria-label="Close">&#x2715;</button>
+    <video class="lightbox__video" id="lbVideo" controls playsinline></video>
+  </div>
+</div>
+
+<script>
+(function(){
+
+  /* ─── sidebar nav ──────────────────────────────────────── */
+  var app    = document.getElementById('app');
+  var toggle = document.getElementById('sidebarToggle');
+  var tabs   = document.querySelectorAll('.navtab[data-target]');
+  var sheets = document.querySelectorAll('.sheet');
+
+  /* Galleries inside a hidden sheet measure 0px wide when the page
+     first loads (hidden elements report clientWidth: 0), so their
+     slide math gets baked in wrong until something recalculates it.
+     Each gallery below registers a refresh callback here; activate()
+     calls them right after un-hiding a sheet so its gallery measures
+     itself correctly the moment it actually becomes visible. */
+  var galleryRefreshers = [];
+
+  toggle.addEventListener('click', function(){
+    var c = app.classList.toggle('is-collapsed');
+    toggle.setAttribute('aria-expanded', String(!c));
+  });
+
+  /* ─── light / dark mode toggle ─────────────────────────── */
+  var themeToggle = document.getElementById('themeToggle');
+  var themeLabel  = document.getElementById('themeToggleLabel');
+  var THEME_KEY   = 'mtran-portfolio-theme';
+
+  function syncThemeUI(){
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    themeLabel.textContent = isLight ? 'DARK MODE' : 'LIGHT MODE';
+    themeToggle.setAttribute('aria-pressed', String(isLight));
+    themeToggle.setAttribute('aria-label', isLight ? 'Switch to dark mode' : 'Switch to light mode');
+  }
+  syncThemeUI();
+
+  themeToggle.addEventListener('click', function(){
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    if (isLight){ document.documentElement.removeAttribute('data-theme'); }
+    else{ document.documentElement.setAttribute('data-theme', 'light'); }
+    try { localStorage.setItem(THEME_KEY, isLight ? 'dark' : 'light'); } catch(e){}
+    syncThemeUI();
+  });
+
+  /* project demo videos: use the YouTube IFrame Player API so we can
+     keep native controls permanently off (controls=0) and drive our
+     own hover-only overlay buttons instead. Videos autoplay (muted,
+     looping) as soon as the Projects tab opens, and pause again when
+     the user navigates away so nothing keeps playing in the background. */
+  var YT_CONFIGS = [
+    { elId: 'yt-boat',      videoId: 'NWnebz-NGHE' },
+    { elId: 'yt-game',      videoId: '8c_xIJKOnpw' },
+    { elId: 'yt-trebuchet', videoId: 'jjuLVTij8sw' }
+  ];
+  var ytPlayers = {};       // elId -> YT.Player instance
+  var ytPendingPlay = null; // true/false/null — desired state if API isn't ready yet
+
+  function updateYtControlIcons(elId){
+    var player = ytPlayers[elId];
+    var bar = document.querySelector('[data-yt-controls-for="' + elId + '"]');
+    if (!player || !bar) return;
+    var playBtn = bar.querySelector('[data-yt-action="playpause"]');
+    var muteBtn = bar.querySelector('[data-yt-action="mute"]');
+    var isPlaying = player.getPlayerState && player.getPlayerState() === 1;
+    var isMuted = player.isMuted && player.isMuted();
+    playBtn.innerHTML = isPlaying
+      ? '<svg viewBox="0 0 20 20" fill="currentColor"><rect x="4" y="3" width="4" height="14"/><rect x="12" y="3" width="4" height="14"/></svg>'
+      : '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M5 3l12 7-12 7V3z"/></svg>';
+    muteBtn.innerHTML = isMuted
+      ? '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8v4h3l4 3V5L6 8H3z"/><path d="M13 7l4 6M17 7l-4 6"/></svg>'
+      : '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8v4h3l4 3V5L6 8H3z"/><path d="M13.5 7.5a3 3 0 0 1 0 5"/><path d="M15.5 5.5a6 6 0 0 1 0 9"/></svg>';
+  }
+
+  function wireYtControls(elId){
+    var bar = document.querySelector('[data-yt-controls-for="' + elId + '"]');
+    if (!bar) return;
+    bar.querySelector('[data-yt-action="playpause"]').addEventListener('click', function(){
+      var player = ytPlayers[elId];
+      if (!player) return;
+      if (player.getPlayerState() === 1){ player.pauseVideo(); } else { player.playVideo(); }
+    });
+    bar.querySelector('[data-yt-action="mute"]').addEventListener('click', function(){
+      var player = ytPlayers[elId];
+      if (!player) return;
+      if (player.isMuted()){ player.unMute(); } else { player.mute(); }
+      updateYtControlIcons(elId);
+    });
+  }
+
+  window.onYouTubeIframeAPIReady = function(){
+    YT_CONFIGS.forEach(function(cfg){
+      wireYtControls(cfg.elId);
+      ytPlayers[cfg.elId] = new YT.Player(cfg.elId, {
+        videoId: cfg.videoId,
+        playerVars: {
+          controls: 0, modestbranding: 1, rel: 0, iv_load_policy: 3,
+          playsinline: 1, loop: 1, playlist: cfg.videoId
+        },
+        events: {
+          onReady: function(e){
+            e.target.mute();
+            if (ytPendingPlay) { e.target.playVideo(); }
+            updateYtControlIcons(cfg.elId);
+          },
+          onStateChange: function(){ updateYtControlIcons(cfg.elId); }
+        }
+      });
+    });
+  };
+  (function(){
+    var tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+  })();
+
+  function setProjectVideosPlaying(playing){
+    ytPendingPlay = playing;
+    YT_CONFIGS.forEach(function(cfg){
+      var player = ytPlayers[cfg.elId];
+      if (!player || !player.playVideo) return;
+      if (playing){ player.seekTo(0); player.playVideo(); }
+      else { player.pauseVideo(); }
+    });
+  }
+
+  function activate(id){
+    sheets.forEach(function(s){
+      var on = s.id === id;
+      s.hidden = !on;
+    });
+    tabs.forEach(function(t){ t.classList.toggle('is-active', t.dataset.target === id); });
+    galleryRefreshers.forEach(function(fn){ fn(); });
+    setProjectVideosPlaying(id === 'projects');
+  }
+  function goToTab(id){
+    activate(id);
+    document.getElementById('content').scrollTo({top:0,behavior:'smooth'});
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){ goToTab(t.dataset.target); });
+  });
+
+  /* any other element (e.g. home page CTA buttons) can also switch
+     tabs by adding data-nav-trigger + data-target="<sheet id>" */
+  document.querySelectorAll('[data-nav-trigger]').forEach(function(el){
+    el.addEventListener('click', function(){ goToTab(el.dataset.target); });
+  });
+
+  /* ─── lightbox ─────────────────────────────────────────── */
+  var lb      = document.getElementById('lightbox');
+  var lbImg   = document.getElementById('lbImg');
+  var lbClose = document.getElementById('lbClose');
+  var lbPrev  = document.getElementById('lbPrev');
+  var lbNext  = document.getElementById('lbNext');
+  var lbCount = document.getElementById('lbCounter');
+
+  /* images currently in the lightbox (filled per gallery) */
+  var lbList = [];
+  var lbIdx  = 0;
+
+  function lbShow(list, idx){
+    lbList = list;
+    lbIdx  = idx;
+    lbRefresh();
+    lb.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+  function lbRefresh(){
+    var entry = lbList[lbIdx];
+    lbImg.classList.add('is-loading');
+    lbImg.onload  = function(){ lbImg.classList.remove('is-loading'); };
+    lbImg.onerror = function(){ lbImg.classList.remove('is-loading'); };
+    lbImg.src = entry.src;
+    lbImg.alt = entry.alt || '';
+    lbCount.textContent = (lbIdx + 1) + ' / ' + lbList.length;
+    lbPrev.disabled = lbIdx === 0;
+    lbNext.disabled = lbIdx === lbList.length - 1;
+  }
+  function lbHide(){
+    lb.classList.remove('is-open');
+    document.body.style.overflow = '';
+    setTimeout(function(){ lbImg.src = ''; }, 250);
+  }
+
+  lbClose.addEventListener('click', lbHide);
+  lb.addEventListener('click', function(e){ if(e.target === lb) lbHide(); });
+  lbPrev.addEventListener('click', function(){ if(lbIdx > 0){ lbIdx--; lbRefresh(); } });
+  lbNext.addEventListener('click', function(){ if(lbIdx < lbList.length-1){ lbIdx++; lbRefresh(); } });
+  document.addEventListener('keydown', function(e){
+    if(!lb.classList.contains('is-open')) return;
+    if(e.key === 'Escape')      lbHide();
+    if(e.key === 'ArrowLeft'  && lbIdx > 0)                  { lbIdx--; lbRefresh(); }
+    if(e.key === 'ArrowRight' && lbIdx < lbList.length - 1)  { lbIdx++; lbRefresh(); }
+  });
+
+  /* ─── video zoom lightbox ──────────────────────────────────
+   * Clicking the zoom button on a project video opens an enlarged
+   * copy of that video in a modal, picking up right where the small
+   * inline version left off. It has native controls (play/pause,
+   * scrub bar for rewinding, volume, fullscreen). Closing the modal
+   * pauses the enlarged video and resumes the inline preview. */
+  var videoLb      = document.getElementById('videoLightbox');
+  var lbVideo       = document.getElementById('lbVideo');
+  var lbVideoClose  = document.getElementById('lbVideoClose');
+  var activeInlineVideo = null;
+
+  function videoLbShow(sourceVideo){
+    activeInlineVideo = sourceVideo;
+    lbVideo.src = sourceVideo.currentSrc || sourceVideo.src;
+    lbVideo.currentTime = sourceVideo.currentTime || 0;
+    lbVideo.muted = false;
+    videoLb.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    sourceVideo.pause();
+    lbVideo.play().catch(function(){ /* autoplay with sound may be blocked — user can press play */ });
+  }
+  function videoLbHide(){
+    videoLb.classList.remove('is-open');
+    document.body.style.overflow = '';
+    lbVideo.pause();
+    if(activeInlineVideo){
+      activeInlineVideo.currentTime = lbVideo.currentTime;
+      activeInlineVideo.play().catch(function(){});
+      activeInlineVideo = null;
+    }
+    setTimeout(function(){ lbVideo.removeAttribute('src'); lbVideo.load(); }, 250);
+  }
+
+  document.querySelectorAll('[data-video-zoom]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var video = btn.parentElement.querySelector('video.project__media');
+      if(video) videoLbShow(video);
+    });
+  });
+  lbVideoClose.addEventListener('click', videoLbHide);
+  videoLb.addEventListener('click', function(e){ if(e.target === videoLb) videoLbHide(); });
+  document.addEventListener('keydown', function(e){
+    if(!videoLb.classList.contains('is-open')) return;
+    if(e.key === 'Escape') videoLbHide();
+  });
+
+  /* ─── gallery slider ────────────────────────────────────── */
+  /*
+   * Structure per gallery:
+   *   .gallery-wrap
+   *     .gallery-arrow--prev  (z-index:10, always above)
+   *     .gallery-viewport     (overflow:hidden)
+   *       .gallery-strip      (flex row, moved by transform)
+   *         .gallery-cell × N
+   *     .gallery-arrow--next
+   *     .gallery-dots
+   *
+   * Visible cell count adapts to screen width (see PER_PAGE()).
+   * Works with placeholder cells OR real <img> cells.
+   * Only real <img> cells open the lightbox.
+   */
+  /* based on the gallery's own viewport width (not window width) —
+     now that galleries live inside a half-width project column, each
+     one needs to size itself off its actual available space rather
+     than the full screen. */
+  function PER_PAGE(viewport){
+    var w = viewport.clientWidth;
+    if(w <= 320) return 1;
+    if(w <= 540) return 2;
+    return 3;
+  }
+
+  document.querySelectorAll('.gallery-wrap').forEach(function(wrap){
+    var viewport = wrap.querySelector('.gallery-viewport');
+    var strip    = wrap.querySelector('.gallery-strip');
+    var cells    = Array.from(strip.querySelectorAll('.gallery-cell'));
+    var prevBtn  = wrap.querySelector('.gallery-arrow--prev');
+    var nextBtn  = wrap.querySelector('.gallery-arrow--next');
+    var dotsEl   = wrap.querySelector('.gallery-dots');
+    var n        = cells.length;
+
+    /* how many steps can we slide? recalculated whenever PER_PAGE changes */
+    var maxStep  = Math.max(0, n - PER_PAGE(viewport));
+    var step     = 0;   /* current offset in cells (0 … maxStep) */
+    var dots     = [];
+
+    /* ── build (or rebuild) the dot indicators ── */
+    function buildDots(){
+      dotsEl.innerHTML = '';
+      dots = [];
+      if(maxStep > 0){
+        dotsEl.style.display = '';
+        for(var d = 0; d <= maxStep; d++){
+          (function(i){
+            var dot = document.createElement('button');
+            dot.className = 'gallery-dot';
+            dot.setAttribute('aria-label', 'Jump to image set ' + (i + 1));
+            dot.addEventListener('click', function(){ goTo(i); });
+            dotsEl.appendChild(dot);
+            dots.push(dot);
+          })(d);
+        }
+      } else {
+        dotsEl.style.display = 'none';
+      }
+    }
+    buildDots();
+
+    /* ── calculate cell width from the viewport ── */
+    function cellWidth(){
+      /* viewport width, divided by however many cells are visible, minus gaps */
+      return (viewport.clientWidth - 12 * (PER_PAGE(viewport) - 1)) / PER_PAGE(viewport);
+    }
+
+    /* ── slide to step i ── */
+    function goTo(i){
+      step = Math.max(0, Math.min(i, maxStep));
+      var offset = step * (cellWidth() + 12);
+      strip.style.transform = 'translateX(-' + offset + 'px)';
+      prevBtn.disabled = step === 0;
+      nextBtn.disabled = step >= maxStep;
+      dots.forEach(function(d, j){ d.classList.toggle('is-active', j === step); });
+    }
+
+    /* set fixed widths on cells so they don't flex-shrink */
+    function setWidths(){
+      var w = cellWidth();
+      cells.forEach(function(c){ c.style.flex = '0 0 ' + w + 'px'; });
+    }
+
+    /* recompute how many cells are visible per page (called on resize) —
+       rebuilds dots and clamps the current step if it's no longer valid */
+    function refreshLayout(){
+      maxStep = Math.max(0, n - PER_PAGE(viewport));
+      buildDots();
+      setWidths();
+      goTo(Math.min(step, maxStep));
+    }
+
+    /* ── collect real images for lightbox ── */
+    function imgList(){
+      var list = [];
+      cells.forEach(function(c){
+        var img = c.querySelector('img');
+        if(img) list.push({ src: img.src, alt: img.alt || '' });
+      });
+      return list;
+    }
+
+    /* ── click cell → lightbox ── */
+    cells.forEach(function(cell, ci){
+      cell.addEventListener('click', function(){
+        if(dragMoved) return;              /* this click was actually a drag/swipe */
+        var list = imgList();
+        if(!list.length) return;           /* placeholder — no image yet */
+        /* find which real-image index this cell is */
+        var realIdx = -1, counted = 0;
+        for(var k = 0; k < cells.length; k++){
+          if(cells[k].querySelector('img')){
+            if(k === ci){ realIdx = counted; break; }
+            counted++;
+          }
+        }
+        if(realIdx >= 0) lbShow(list, realIdx);
+      });
+    });
+
+    /* ── drag / mouse scroll ──
+       A real click always has a tiny bit of mouse movement between
+       mousedown and mouseup. Without a threshold, that movement was
+       triggering the live-drag transform, which moved the cell out
+       from under the cursor and made the browser cancel the click —
+       so clicking an image to expand it silently did nothing.
+       DRAG_THRESHOLD lets small jitters pass through as plain clicks,
+       and only starts dragging the strip once the move is deliberate. */
+    var DRAG_THRESHOLD = 6; /* px */
+    var dragStart  = null;
+    var dragStep   = 0;
+    var dragActive = false;  /* true once movement has exceeded the threshold */
+    var dragMoved  = false;  /* true if this gesture ended up being a drag, not a click */
+
+    strip.addEventListener('mousedown', function(e){
+      dragStart  = e.clientX;
+      dragStep   = step;
+      dragActive = false;
+      dragMoved  = false;
+    });
+    window.addEventListener('mousemove', function(e){
+      if(dragStart === null) return;
+      var dx = e.clientX - dragStart;
+      if(!dragActive){
+        if(Math.abs(dx) < DRAG_THRESHOLD) return;  /* still just a click's worth of jitter */
+        dragActive = true;
+        dragMoved  = true;
+        strip.classList.add('is-dragging');
+      }
+      var w = cellWidth() + 12;
+      /* live-drag without snapping */
+      var liveOffset = dragStep * w - dx;
+      strip.style.transition = 'none';
+      strip.style.transform  = 'translateX(-' + Math.max(0, liveOffset) + 'px)';
+    });
+    window.addEventListener('mouseup', function(e){
+      if(dragStart === null) return;
+      if(dragActive){
+        var dx = e.clientX - dragStart;
+        strip.style.transition = '';
+        if(dx < -40)       goTo(step + 1);
+        else if(dx > 40)   goTo(step - 1);
+        else               goTo(step);       /* snap back */
+        strip.classList.remove('is-dragging');
+      }
+      dragStart = null;
+      /* clear dragMoved after this tick so the click handler (which fires
+         right after mouseup) can still see it for this gesture */
+      setTimeout(function(){ dragMoved = false; }, 0);
+    });
+
+    /* touch */
+    var touchX = 0;
+    strip.addEventListener('touchstart', function(e){ touchX = e.touches[0].clientX; }, {passive:true});
+    strip.addEventListener('touchend',   function(e){
+      var dx = e.changedTouches[0].clientX - touchX;
+      if(dx < -30) goTo(step + 1);
+      else if(dx > 30) goTo(step - 1);
+    }, {passive:true});
+
+    /* arrows */
+    prevBtn.addEventListener('click', function(){ goTo(step - 1); });
+    nextBtn.addEventListener('click', function(){ goTo(step + 1); });
+
+    /* initialise */
+    setWidths();
+    goTo(0);
+
+    /* recalc on resize — also re-evaluates PER_PAGE() in case the
+       screen crossed a breakpoint (phone/tablet/desktop) */
+    window.addEventListener('resize', refreshLayout);
+
+    /* let activate() re-measure this gallery once its sheet is
+       actually visible (see galleryRefreshers above) */
+    galleryRefreshers.push(refreshLayout);
+  });
+
+  /* ─── project fade-in on scroll ─────────────────────────────
+   * Each .project card starts hidden/offset (see CSS) and toggles an
+   * .is-visible class every time it crosses into/out of view, so the
+   * fade plays again each time you scroll past it — both scrolling
+   * down into the card and scrolling back up to it.
+   * Works even though the PROJECTS sheet starts with [hidden] — the
+   * observer just won't report an intersection until the sheet (and
+   * therefore the card) is actually shown and scrolled into view.
+   *
+   * IMPORTANT: we observe the .project-observe WRAPPER, not the
+   * .project card itself. The card is what animates (opacity +
+   * translateY). If the observer watched the card directly, its own
+   * transform would shift its bounding box mid-animation, which could
+   * re-trigger the observer and cause a rapid flicker/glitch loop.
+   * The wrapper's box is defined by normal document flow and never
+   * moves, so it gives the observer a stable target to watch while
+   * the card animates freely inside it. */
+  if('IntersectionObserver' in window){
+    var projectObserver = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        /* toggle both ways — card fades in scrolling down into view,
+           and fades back out if scrolled away from (either direction),
+           so it's ready to replay the animation next time it's revisited */
+        var card = entry.target.querySelector('.project');
+        if(card) card.classList.toggle('is-visible', entry.isIntersecting);
+      });
+    }, { threshold: 0.01, rootMargin: '0px 0px 20% 0px' });
+
+    document.querySelectorAll('.project-observe').forEach(function(wrap){
+      projectObserver.observe(wrap);
+    });
+  } else {
+    /* no IntersectionObserver support — just show the cards */
+    document.querySelectorAll('.project').forEach(function(card){
+      card.classList.add('is-visible');
+    });
+  }
+
+})();
+</script>
+
+</body>
+</html>
