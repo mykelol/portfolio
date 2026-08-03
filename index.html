@@ -749,8 +749,9 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
    The image itself is cropped (object-fit: cover, below) to fill
    this box completely. */
 .gallery-cell{
-  flex: 0 0 calc((100% - 12px) / 2);
-  aspect-ratio: 4 / 3;
+  flex:0 0 calc((100% - 12px)/2);
+  aspect-ratio:4/3;
+  min-height:0;
   position: relative;
   z-index: 1;
   overflow: hidden;
@@ -1304,6 +1305,15 @@ html[data-theme="light"] .tag:nth-of-type(3n+1){
 html[data-theme="light"] .project:hover{
   box-shadow: 9px 9px 0 0 rgba(47,85,160,0.45);
 }
+
+/* gallery sizing override */
+@media (max-width:760px){
+.gallery-cell{flex:0 0 100%!important;aspect-ratio:4/3!important;height:auto!important;}
+}
+@media (min-width:761px){
+.gallery-cell{flex:0 0 calc((100% - 12px)/2)!important;aspect-ratio:4/3!important;height:auto!important;}
+}
+
 </style>
 </head>
 <body>
