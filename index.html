@@ -530,17 +530,6 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
   .hero-figure{ aspect-ratio: 16/7; }
 }
 
-/* below this width the two project columns get too narrow to be
-   useful — stack media on top and info below for every project,
-   overriding the alternating left/right order. */
-@media (max-width: 900px){
-  .project__body{ grid-template-columns: 1fr; gap: 20px; }
-  .project__media-col,
-  .project--reverse .project__media-col{ order: 1; }
-  .project__info-col,
-  .project--reverse .project__info-col{ order: 2; }
-}
-
 /* ============================================================
    PROJECTS
    ============================================================ */
@@ -604,6 +593,22 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
 .project__info-col{ order: 2; min-width: 0; }
 .project--reverse .project__media-col{ order: 2; }
 .project--reverse .project__info-col{ order: 1; }
+
+/* below this width the two project columns get too narrow to be
+   useful — stack media on top and info below for every project,
+   overriding the alternating left/right order. Placed AFTER the
+   base .project__body/.project__media-col/.project__info-col rules
+   above (not before them) — with equal specificity, whichever rule
+   comes later in the file wins regardless of the media query, so if
+   this block sat earlier in the stylesheet the base two-column
+   rules would silently override it on every phone. */
+@media (max-width: 900px){
+  .project__body{ grid-template-columns: 1fr; gap: 20px; }
+  .project__media-col,
+  .project--reverse .project__media-col{ order: 1; }
+  .project__info-col,
+  .project--reverse .project__info-col{ order: 2; }
+}
 
 /* EDIT: PROJECT media — replace .media-placeholder with, e.g.:
    <video controls poster="project1-poster.jpg" style="width:100%;display:block;">
