@@ -2042,8 +2042,12 @@ html[data-theme="light"] .project:hover{
 
     /* ── calculate cell width from the viewport ── */
     function cellWidth(){
-      /* viewport width, divided by however many cells are visible, minus gaps */
-      return (viewport.clientWidth - 12 * (PER_PAGE(viewport) - 1)) / PER_PAGE(viewport);
+      /* viewport width, divided by however many cells are visible, minus gaps.
+         Clamped to 0 (never negative) so a mis-timed read — e.g. while the
+         gallery's sheet is still [hidden] and reports clientWidth: 0 — can't
+         bake a negative flex-basis into the cells. */
+      var w = (viewport.clientWidth - 12 * (PER_PAGE(viewport) - 1)) / PER_PAGE(viewport);
+      return w > 0 ? w : 0;
     }
 
     /* ── slide to step i ── */
@@ -2058,6 +2062,11 @@ html[data-theme="light"] .project:hover{
 
     /* set fixed widths on cells so they don't flex-shrink */
     function setWidths(){
+      /* viewport isn't actually laid out yet (still hidden, or mid-transition) —
+         bail out rather than baking in a 0px layout. The ResizeObserver below
+         fires again the instant this element gets a real size, so this just
+         waits for that instead of guessing. */
+      if(viewport.clientWidth <= 0) return;
       var w = cellWidth();
       cells.forEach(function(c){ c.style.flex = '0 0 ' + w + 'px'; });
     }
@@ -2167,13 +2176,25 @@ html[data-theme="light"] .project:hover{
     setWidths();
     goTo(0);
 
-    /* recalc on resize — also re-evaluates PER_PAGE() in case the
-       screen crossed a breakpoint (phone/tablet/desktop) */
-    window.addEventListener('resize', refreshLayout);
-
-    /* let activate() re-measure this gallery once its sheet is
-       actually visible (see galleryRefreshers above) */
-    galleryRefreshers.push(refreshLayout);
+    /* Recalculate any time this gallery's own box actually changes size —
+       window resize/orientation change, the sidebar collapsing, a tab
+       switch un-hiding its sheet, web fonts finishing and reflowing the
+       column, all of it. ResizeObserver fires once immediately on
+       observe() and again every time the observed box's size changes, so
+       this alone keeps the gallery correct without needing to guess which
+       specific event caused the change (that guesswork — relying on a
+       'resize' listener plus a manual activate() hook — was the previous
+       approach, and it's what left galleries stuck at their initial 0px
+       measurement if the true size arrived some other way). */
+    if('ResizeObserver' in window){
+      var ro = new ResizeObserver(function(){ refreshLayout(); });
+      ro.observe(viewport);
+    } else {
+      /* very old browsers without ResizeObserver: fall back to the
+         resize-event + tab-activation hooks */
+      window.addEventListener('resize', refreshLayout);
+      galleryRefreshers.push(refreshLayout);
+    }
   });
 
   /* ─── project fade-in on scroll ─────────────────────────────
