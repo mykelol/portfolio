@@ -526,8 +526,30 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
 .home-meta__item div{ color: var(--line-soft); }
 
 @media (max-width: 860px){
-  .home-hero-row{ grid-template-columns: 1fr; gap: 28px; }
-  .hero-figure{ aspect-ratio: 4/3; max-width:100%; }
+  .home-hero-row{
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+  }
+
+  .home-text-col{
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* Put the photo between the title and the paragraph */
+  .home-name{ order:1; }
+  .home-role{ order:2; }
+
+  .hero-figure{
+    order:3;
+    aspect-ratio:4/3;
+    max-width:100%;
+    width:100%;
+  }
+
+  .home-tagline{ order:4; }
+  .home-cta{ order:5; }
 }
 
 /* ============================================================
