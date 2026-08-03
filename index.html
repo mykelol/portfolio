@@ -750,7 +750,7 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
    this box completely. */
 .gallery-cell{
   flex: 0 0 calc((100% - 24px) / 3);
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 3;
   position: relative;
   z-index: 1;
   overflow: hidden;
@@ -808,11 +808,7 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
    the cascade (same specificity — a media query doesn't out-rank a
    plain rule, only file order does). */
 @media (max-width: 760px){
-  /* only 1 cell shown at a time on phones (see PER_PAGE() in the
-     script) — taller than the desktop 4:3 box since there's no
-     neighboring cell to share width with, so it can afford to be
-     bigger and show more of each photo */
-  .gallery-cell{ aspect-ratio: 1 / 1; }
+  .gallery-cell{ aspect-ratio: 4 / 3; }
 }
 
 .img-placeholder{
@@ -2023,15 +2019,10 @@ html[data-theme="light"] .project:hover{
      as much room as it does on desktop instead of being crammed 2-up
      into a tiny box. */
   function PER_PAGE(viewport){
-    /* Based on the actual window width (device size), not the
-       gallery's own column width. In the two-column project layout
-       the media column is only ~450-550px wide even on a big desktop
-       screen, so sizing off the column itself can't tell a phone
-       apart from a laptop. window.innerWidth can. */
-    var w = window.innerWidth;
-    if(w <= 760) return 1;    /* phones */
-    if(w <= 1100) return 2;   /* tablets, small laptops */
-    return 2;                 /* laptops / desktop — 2 up, roomier boxes */
+    var w = viewport.clientWidth;
+    if(w <= 600) return 1;
+    if(w <= 900) return 2;
+    return 3;
   }
 
   document.querySelectorAll('.gallery-wrap').forEach(function(wrap){
