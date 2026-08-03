@@ -737,7 +737,6 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
 .gallery-strip{
   display: flex;
   gap: 12px;
-  /* width is set by JS based on item count */
   transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: grab;
   user-select: none;
@@ -745,7 +744,11 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
 }
 .gallery-strip.is-dragging{ cursor: grabbing; transition: none; }
 
-/* each cell = exactly 1/3 of the viewport minus gaps */
+/* each cell = exactly 1/3 of the viewport minus gaps.
+   Fixed 4:3 box for every cell — same size no matter which photo is
+   showing, so navigating between slides doesn't resize the gallery.
+   The image itself is cropped (object-fit: cover, below) to fill
+   this box completely. */
 .gallery-cell{
   flex: 0 0 calc((100% - 24px) / 3);
   aspect-ratio: 4 / 3;
@@ -770,12 +773,10 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
   width:100%;
   height:100%;
   display:block;
-  /* contain (not cover) — cells are a fixed 4:3 box but the source
-     photos/renders vary a lot in aspect ratio (some are near-square
-     CAD screenshots, some are tall portrait shots). cover was cropping
-     into whichever edge stuck out; contain always shows the whole
-     image, letterboxed on the cell's own background where needed. */
-  object-fit:contain;
+  /* cover — the box is a fixed size for every cell, so the image is
+     scaled up and cropped to fill it completely edge-to-edge rather
+     than being shrunk to fit inside with empty bars. */
+  object-fit:cover;
   pointer-events:none;
   transition:transform .22s cubic-bezier(0.34,1.56,0.64,1);
 }
