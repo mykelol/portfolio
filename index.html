@@ -749,8 +749,8 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
    The image itself is cropped (object-fit: cover, below) to fill
    this box completely. */
 .gallery-cell{
-  flex: 0 0 calc((100% - 12px) / 2);
-  aspect-ratio: 3 / 4;
+  flex: 0 0 calc((100% - 24px) / 3);
+  aspect-ratio: 4 / 3;
   position: relative;
   z-index: 1;
   overflow: hidden;
@@ -797,18 +797,6 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
 }
 .gallery-cell{
   isolation: isolate;
-}
-
-/* full-width, landscape box on phones/tablets — matches the desktop
-   4:3 shape instead of squeezing multiple small cropped cells into a
-   narrow screen. Combined with PER_PAGE() in the script below (which
-   now shows 1 cell at a time under ~600px container width and 2 under
-   ~900px), each photo gets far more room and far less gets cropped.
-   Placed after the base .gallery-cell rule above so it actually wins
-   the cascade (same specificity — a media query doesn't out-rank a
-   plain rule, only file order does). */
-@media (max-width: 760px){
-  .gallery-cell{ flex:0 0 100%; aspect-ratio:3 / 4; }
 }
 
 .img-placeholder{
@@ -2011,18 +1999,18 @@ html[data-theme="light"] .project:hover{
    * Works with placeholder cells OR real <img> cells.
    * Only real <img> cells open the lightbox.
    */
-  /* based on the gallery's own viewport width (not window width) —
-     now that galleries live inside a half-width project column, each
-     one needs to size itself off its actual available space rather
-     than the full screen. On phones (container ~600px or narrower)
-     this shows just 1 cell at a time, full width, so each photo gets
-     as much room as it does on desktop instead of being crammed 2-up
-     into a tiny box. */
+  /* Based on the actual device/window width, not the gallery's own
+     column width — the media column is only ~450-550px wide even on
+     a full desktop screen (it's half of a two-column layout), so
+     sizing off the column itself can't tell an iPhone apart from a
+     laptop. window.innerWidth can: iPhone-width screens get 1 image
+     per page, everything from iPad up (tablets, laptops, desktop)
+     gets 2. The box itself (aspect-ratio, in the CSS above) is the
+     same 4:3 shape at every size — only the count per page changes. */
   function PER_PAGE(viewport){
-    var w = viewport.clientWidth;
-    if(w <= 600) return 1;
-    if(w <= 900) return 2;
-    return 3;
+    var w = window.innerWidth;
+    if(w <= 640) return 1;   /* iPhone */
+    return 2;                 /* iPad, laptop, desktop */
   }
 
   document.querySelectorAll('.gallery-wrap').forEach(function(wrap){
