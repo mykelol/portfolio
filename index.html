@@ -749,8 +749,8 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
    The image itself is cropped (object-fit: cover, below) to fill
    this box completely. */
 .gallery-cell{
-  flex: 0 0 calc((100% - 24px) / 3);
-  aspect-ratio: 4 / 3;
+  flex: 0 0 calc((100% - 12px) / 2);
+  aspect-ratio: 3 / 4;
   position: relative;
   z-index: 1;
   overflow: hidden;
@@ -808,7 +808,7 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
    the cascade (same specificity — a media query doesn't out-rank a
    plain rule, only file order does). */
 @media (max-width: 760px){
-  .gallery-cell{ aspect-ratio: 4 / 3; }
+  .gallery-cell{ flex:0 0 100%; aspect-ratio:3 / 4; }
 }
 
 .img-placeholder{
@@ -1260,12 +1260,6 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
   .content{ margin-left:0; margin-top: 56px; padding: 24px 16px 56px; }
   .app.is-collapsed .content{ margin-left:0; }
   .sheet{ padding: 24px 18px; }
-
-  /* Taller project media on mobile */
-  .project__media,
-  .media-placeholder{
-    aspect-ratio: 5 / 4;
-  }
   .sheet__title{ font-size: clamp(24px, 7vw, 32px); }
 
   .home-meta{ gap: 16px 24px; }
