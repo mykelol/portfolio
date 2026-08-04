@@ -293,6 +293,7 @@ button{ font-family: inherit; }
   letter-spacing: 0.08em;
   overflow: hidden;
   opacity: 1;
+  text-align: center;
   transition: opacity 0.16s ease;
 }
 .app.is-collapsed .navtab__label{ opacity: 0; width: 0; pointer-events: none; }
@@ -303,7 +304,7 @@ button{ font-family: inherit; }
   margin-top: auto;
   border-top: 1px solid var(--line-faint);
 }
-.theme-toggle .navtab__label{ position: relative; top: 1.5px; }
+
 .theme-toggle__icon{ display:none; }
 .theme-toggle__icon--sun{ display:block; }
 html[data-theme="light"] .theme-toggle__icon--sun{ display:none; }
@@ -825,9 +826,11 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
 
 /* full-width, landscape box on phones/tablets — matches the desktop
    4:3 shape instead of squeezing multiple small cropped cells into a
-   narrow screen. 1 cell visible at a time under this breakpoint,
-   matching PER_PAGE() in the script below. Placed after the base
-   .gallery-cell rule above so it actually wins the cascade. */
+   narrow screen. 1 cell visible at a time under this breakpoint (the
+   script measures this directly rather than assuming it, so it will
+   stay correct even if this breakpoint value ever changes). Placed
+   after the base .gallery-cell rule above so it actually wins the
+   cascade. */
 @media (max-width: 760px){
   .gallery-cell{ flex: 0 0 100%; aspect-ratio: 4 / 3; }
 }
@@ -1273,7 +1276,7 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
   .navtab{ flex: 1 1 0; min-width: 0; flex-direction: column; gap: 2px; padding: 8px 4px; border-left:none; border-bottom: 2px solid transparent; }
   .navtab.is-active{ border-left:none; border-bottom-color: var(--maroon-bright); }
   .navtab__num{ display:none; }
-  .navtab__label{ opacity:1; font-size: 8.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .navtab__label{ opacity:1; font-size: 8.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; text-align: center; }
   .navtab__icon{ width: 18px; height: 18px; }
   .theme-toggle{ margin-top: 0; border-top: none; }
   .sidebar__foot{ display:none; }
@@ -1622,11 +1625,11 @@ html[data-theme="light"] .project:hover{
             Engineering Honors student at Texas A&amp;M University with a minor in Mathematics.
             I'm a motivated, hardworking student, involved in a number of organizations including
             TURTLE Robotics, The American Society of Mechanical Engineers, and the TAMU IGNITE
-            Design Challenge. I love exploring ways to turn my weird ideas into working prototypes,
-            whether it be through CAD models or code, and I'm always open to learning something
-            new. As I move forward, I'm hoping to secure an internship or co-op in mechanical
-            design/prototyping. Outside of school, I am a cellist of 9 years and a figure skater!
-            <!-- EDIT: replace with your real bio — interests, clubs, research, internships -->
+            Design Challenge. You can always find me trying to turn my weird ideas into working
+            prototypes, whether it be through CAD models or code, and I'm always looking to learn
+            something new. As I move forward, I'm hoping to secure an internship or co-op in
+            mechanical design/prototyping. Outside of school, I am a cellist of 9 years and a
+            figure skater!
           </p>
         </div>
 
@@ -2001,18 +2004,26 @@ html[data-theme="light"] .project:hover{
    *     .gallery-arrow--next
    *     .gallery-dots
    *
-   * Visible cell count is decided ENTIRELY by CSS (.gallery-cell's
-   * flex-basis: 2-up above 760px, 1-up at/below it — see the CSS
-   * rules for .gallery-cell). The JS below never sets an inline width
-   * on cells and never assumes a cell size; it always measures the
-   * actual rendered cell via getBoundingClientRect(), so it can't
-   * disagree with what's on screen. That's what keeps "one arrow
-   * press = one picture" true, and what stops the strip from being
-   * able to slide past the last real picture into blank space.
+   * Visible cell count is decided by CSS (.gallery-cell's flex-basis:
+   * 2-up above 760px, 1-up at/below it). Crucially, that 760px
+   * breakpoint is a WINDOW-width media query, but the gallery itself
+   * lives inside a two-column project layout — so on an ordinary
+   * desktop window the gallery's own box can easily be narrower than
+   * 760px even though the window is wide, and the CSS is still
+   * showing 2 cells. Guessing "how many are visible" from the window
+   * breakpoint (as an earlier version of this script did) disagrees
+   * with that, and lets you click "next" one time too many — landing
+   * on a position where the second cell doesn't exist, i.e. blank
+   * space past the last real picture.
+   *
+   * To avoid that mismatch entirely, this script never guesses the
+   * visible count — it measures the actual rendered cell width via
+   * getBoundingClientRect() and divides that into the gallery's own
+   * actual rendered width. Whatever CSS decided to render is exactly
+   * what the step math uses, so the two can never disagree, and the
+   * last step always lands with the last real picture flush against
+   * the right edge — never past it.
    */
-  function PER_PAGE(viewport){
-    return viewport.clientWidth <= 760 ? 1 : 2;
-  }
 
   document.querySelectorAll('.gallery-wrap').forEach(function(wrap){
     var viewport = wrap.querySelector('.gallery-viewport');
@@ -2023,13 +2034,37 @@ html[data-theme="light"] .project:hover{
     var dotsEl   = wrap.querySelector('.gallery-dots');
     var n        = cells.length;
 
+    /* ── measure the ACTUAL rendered width of one cell ──
+       CSS (not JS) decides how wide a cell is — this just reads back
+       whatever CSS produced, so the slide distance always matches a
+       real picture's width exactly. */
+    function cellWidth(){
+      if(!cells.length) return 0;
+      var w = cells[0].getBoundingClientRect().width;
+      return w > 0 ? w : 0;
+    }
+
+    /* ── measure how many cells are ACTUALLY visible at once ──
+       Uses the gallery's own rendered width divided by the real cell
+       width, instead of assuming a count from a window breakpoint.
+       This is what keeps desktop's two-column layout (where the
+       gallery box is often narrower than the 760px breakpoint even
+       on a wide window) from disagreeing with what CSS is rendering. */
+    function visibleCount(){
+      var cw = cellWidth();
+      if(cw <= 0) return 1;
+      var vw = viewport.clientWidth;
+      var count = Math.round((vw + 12) / (cw + 12));
+      return Math.max(1, Math.min(n, count));
+    }
+
     /* how many single-picture steps can we slide? recalculated
-       whenever PER_PAGE (i.e. viewport width) changes. This is the
+       whenever the measured visible count changes. This is the
        last position where a full picture is still showing at the
        end of the strip — sliding further than this would reveal
        empty space past the last picture, which is the bug being
        fixed here. */
-    var maxStep  = Math.max(0, n - PER_PAGE(viewport));
+    var maxStep  = Math.max(0, n - visibleCount());
     var step     = 0;   /* current offset in single-picture steps (0 … maxStep) */
     var dots     = [];
 
@@ -2055,16 +2090,6 @@ html[data-theme="light"] .project:hover{
     }
     buildDots();
 
-    /* ── measure the ACTUAL rendered width of one cell ──
-       CSS (not JS) decides how wide a cell is — this just reads back
-       whatever CSS produced, so the slide distance always matches a
-       real picture's width exactly. */
-    function cellWidth(){
-      if(!cells.length) return 0;
-      var w = cells[0].getBoundingClientRect().width;
-      return w > 0 ? w : 0;
-    }
-
     /* ── slide to step i, one picture per step ── */
     function goTo(i){
       step = Math.max(0, Math.min(i, maxStep));
@@ -2078,7 +2103,7 @@ html[data-theme="light"] .project:hover{
     /* recompute how many single-picture steps exist (called on resize) —
        rebuilds dots and clamps the current step if it's no longer valid */
     function refreshLayout(){
-      maxStep = Math.max(0, n - PER_PAGE(viewport));
+      maxStep = Math.max(0, n - visibleCount());
       buildDots();
       goTo(Math.min(step, maxStep));
     }
