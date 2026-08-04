@@ -724,7 +724,8 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
 }
 
 /* ============================================================
-   GALLERY — scrollable strip, 3 visible, arrows always on top
+   GALLERY — scrollable strip, 2 visible desktop / 1 visible mobile,
+   arrows always on top, one picture moves per arrow press
    ============================================================ */
 .gallery-wrap{
   position: relative;
@@ -765,13 +766,13 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
 }
 .gallery-strip.is-dragging{ cursor: grabbing; transition: none; }
 
-/* each cell = exactly 1/3 of the viewport minus gaps.
-   Fixed 4:3 box for every cell — same size no matter which photo is
-   showing, so navigating between slides doesn't resize the gallery.
-   The image itself is cropped (object-fit: cover, below) to fill
-   this box completely. */
+/* each cell: 2-up on desktop/tablet, 1-up (full width) on phones —
+   this is the single source of truth for how many pictures are
+   visible at once. The JS below measures these rendered widths
+   directly rather than recomputing them, so it can never disagree
+   with what's actually on screen. */
 .gallery-cell{
-  flex:0 0 calc((100% - 12px)/2);
+  flex: 0 0 calc((100% - 12px) / 2);
   aspect-ratio:4/3;
   min-height:0;
   position: relative;
@@ -824,14 +825,11 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
 
 /* full-width, landscape box on phones/tablets — matches the desktop
    4:3 shape instead of squeezing multiple small cropped cells into a
-   narrow screen. Combined with PER_PAGE() in the script below (which
-   now shows 1 cell at a time under ~600px container width and 2 under
-   ~900px), each photo gets far more room and far less gets cropped.
-   Placed after the base .gallery-cell rule above so it actually wins
-   the cascade (same specificity — a media query doesn't out-rank a
-   plain rule, only file order does). */
+   narrow screen. 1 cell visible at a time under this breakpoint,
+   matching PER_PAGE() in the script below. Placed after the base
+   .gallery-cell rule above so it actually wins the cascade. */
 @media (max-width: 760px){
-  .gallery-cell{ aspect-ratio: 4 / 3; }
+  .gallery-cell{ flex: 0 0 100%; aspect-ratio: 4 / 3; }
 }
 
 .img-placeholder{
@@ -1326,14 +1324,6 @@ html[data-theme="light"] .tag:nth-of-type(3n+1){
 }
 html[data-theme="light"] .project:hover{
   box-shadow: 9px 9px 0 0 rgba(47,85,160,0.45);
-}
-
-/* gallery sizing override */
-@media (max-width:760px){
-.gallery-cell{flex:0 0 100%!important;aspect-ratio:4/3!important;height:auto!important;}
-}
-@media (min-width:761px){
-.gallery-cell{flex:0 0 calc((100% - 12px)/2)!important;aspect-ratio:4/3!important;height:auto!important;}
 }
 
 </style>
@@ -2031,22 +2021,17 @@ html[data-theme="light"] .project:hover{
    *     .gallery-arrow--next
    *     .gallery-dots
    *
-   * Visible cell count adapts to screen width (see PER_PAGE()).
-   * Works with placeholder cells OR real <img> cells.
-   * Only real <img> cells open the lightbox.
+   * Visible cell count is decided ENTIRELY by CSS (.gallery-cell's
+   * flex-basis: 2-up above 760px, 1-up at/below it — see the CSS
+   * rules for .gallery-cell). The JS below never sets an inline width
+   * on cells and never assumes a cell size; it always measures the
+   * actual rendered cell via getBoundingClientRect(), so it can't
+   * disagree with what's on screen. That's what keeps "one arrow
+   * press = one picture" true, and what stops the strip from being
+   * able to slide past the last real picture into blank space.
    */
-  /* based on the gallery's own viewport width (not window width) —
-     now that galleries live inside a half-width project column, each
-     one needs to size itself off its actual available space rather
-     than the full screen. On phones (container ~600px or narrower)
-     this shows just 1 cell at a time, full width, so each photo gets
-     as much room as it does on desktop instead of being crammed 2-up
-     into a tiny box. */
   function PER_PAGE(viewport){
-    var w = viewport.clientWidth;
-    if(w <= 600) return 1;
-    if(w <= 900) return 2;
-    return 3;
+    return viewport.clientWidth <= 760 ? 1 : 2;
   }
 
   document.querySelectorAll('.gallery-wrap').forEach(function(wrap){
@@ -2058,9 +2043,14 @@ html[data-theme="light"] .project:hover{
     var dotsEl   = wrap.querySelector('.gallery-dots');
     var n        = cells.length;
 
-    /* how many steps can we slide? recalculated whenever PER_PAGE changes */
+    /* how many single-picture steps can we slide? recalculated
+       whenever PER_PAGE (i.e. viewport width) changes. This is the
+       last position where a full picture is still showing at the
+       end of the strip — sliding further than this would reveal
+       empty space past the last picture, which is the bug being
+       fixed here. */
     var maxStep  = Math.max(0, n - PER_PAGE(viewport));
-    var step     = 0;   /* current offset in cells (0 … maxStep) */
+    var step     = 0;   /* current offset in single-picture steps (0 … maxStep) */
     var dots     = [];
 
     /* ── build (or rebuild) the dot indicators ── */
@@ -2073,7 +2063,7 @@ html[data-theme="light"] .project:hover{
           (function(i){
             var dot = document.createElement('button');
             dot.className = 'gallery-dot';
-            dot.setAttribute('aria-label', 'Jump to image set ' + (i + 1));
+            dot.setAttribute('aria-label', 'Jump to image ' + (i + 1));
             dot.addEventListener('click', function(){ goTo(i); });
             dotsEl.appendChild(dot);
             dots.push(dot);
@@ -2085,17 +2075,17 @@ html[data-theme="light"] .project:hover{
     }
     buildDots();
 
-    /* ── calculate cell width from the viewport ── */
+    /* ── measure the ACTUAL rendered width of one cell ──
+       CSS (not JS) decides how wide a cell is — this just reads back
+       whatever CSS produced, so the slide distance always matches a
+       real picture's width exactly. */
     function cellWidth(){
-      /* viewport width, divided by however many cells are visible, minus gaps.
-         Clamped to 0 (never negative) so a mis-timed read — e.g. while the
-         gallery's sheet is still [hidden] and reports clientWidth: 0 — can't
-         bake a negative flex-basis into the cells. */
-      var w = (viewport.clientWidth - 12 * (PER_PAGE(viewport) - 1)) / PER_PAGE(viewport);
+      if(!cells.length) return 0;
+      var w = cells[0].getBoundingClientRect().width;
       return w > 0 ? w : 0;
     }
 
-    /* ── slide to step i ── */
+    /* ── slide to step i, one picture per step ── */
     function goTo(i){
       step = Math.max(0, Math.min(i, maxStep));
       var offset = step * (cellWidth() + 12);
@@ -2105,23 +2095,11 @@ html[data-theme="light"] .project:hover{
       dots.forEach(function(d, j){ d.classList.toggle('is-active', j === step); });
     }
 
-    /* set fixed widths on cells so they don't flex-shrink */
-    function setWidths(){
-      /* viewport isn't actually laid out yet (still hidden, or mid-transition) —
-         bail out rather than baking in a 0px layout. The ResizeObserver below
-         fires again the instant this element gets a real size, so this just
-         waits for that instead of guessing. */
-      if(viewport.clientWidth <= 0) return;
-      var w = cellWidth();
-      cells.forEach(function(c){ c.style.flex = '0 0 ' + w + 'px'; });
-    }
-
-    /* recompute how many cells are visible per page (called on resize) —
+    /* recompute how many single-picture steps exist (called on resize) —
        rebuilds dots and clamps the current step if it's no longer valid */
     function refreshLayout(){
       maxStep = Math.max(0, n - PER_PAGE(viewport));
       buildDots();
-      setWidths();
       goTo(Math.min(step, maxStep));
     }
 
@@ -2213,12 +2191,11 @@ html[data-theme="light"] .project:hover{
       else if(dx > 30) goTo(step - 1);
     }, {passive:true});
 
-    /* arrows */
+    /* arrows — always move exactly one picture per press */
     prevBtn.addEventListener('click', function(){ goTo(step - 1); });
     nextBtn.addEventListener('click', function(){ goTo(step + 1); });
 
     /* initialise */
-    setWidths();
     goTo(0);
 
     /* Recalculate any time this gallery's own box actually changes size —
@@ -2227,10 +2204,7 @@ html[data-theme="light"] .project:hover{
        column, all of it. ResizeObserver fires once immediately on
        observe() and again every time the observed box's size changes, so
        this alone keeps the gallery correct without needing to guess which
-       specific event caused the change (that guesswork — relying on a
-       'resize' listener plus a manual activate() hook — was the previous
-       approach, and it's what left galleries stuck at their initial 0px
-       measurement if the true size arrived some other way). */
+       specific event caused the change. */
     if('ResizeObserver' in window){
       var ro = new ResizeObserver(function(){ refreshLayout(); });
       ro.observe(viewport);
