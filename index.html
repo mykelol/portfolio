@@ -1232,6 +1232,9 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
 .contact-row__val{ font-size: 14.5px; transition: color 0.18s ease; }
 
 .contact-form{ display:flex; flex-direction:column; gap: 14px; margin-top: -48px; }
+@media (max-width: 860px){
+  .contact-form{ margin-top: 0; }
+}
 .field{ display:flex; flex-direction:column; gap: 6px; }
 .field label{ font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; color: var(--line-soft); }
 .field input, .field textarea{
