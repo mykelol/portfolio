@@ -698,6 +698,41 @@ html[data-theme="light"] .theme-toggle__icon--moon{ display:block; }
 }
 .project__desc-list li strong{ color: var(--line); font-weight: 500; }
 
+/* Desktop-only: scale the description text up with the column's own
+   width, at a rate calibrated to stay under the video + gallery height
+   on the other side (rather than trying to force-fill it), so text
+   never spills below the media column. Gated to the same breakpoint
+   where the two columns actually sit side by side, so mobile/tablet
+   keep the original fixed 15.5px text and 13px gap untouched. Placed
+   after the base rules above so it wins the cascade at matching
+   widths. */
+@media (min-width: 901px){
+  .project__info-col{
+    /* lets descendants size text with cqi units relative to THIS
+       column's actual rendered width — adapts correctly whether the
+       sidebar is collapsed, the window is resized, etc. */
+    container-type: inline-size;
+  }
+  .project__desc-list{
+    /* keep the original fixed 13px gap — don't let bullet spacing grow
+       on top of the bigger text below, or the list can end up taller
+       than the video/gallery next to it. */
+    gap: 13px;
+  }
+  .project__desc-list li{
+    /* a gentler scale than before: text does grow with the column's
+       own width, but stays capped low enough that a normal 3–4 line
+       bullet list won't end up taller than the video + gallery on the
+       other side of a typical project card. */
+    font-size: clamp(15.5px, calc(13.7px + 0.85cqi), 18px);
+    line-height: 1.6;
+  }
+  .project__desc{
+    font-size: clamp(15.5px, calc(13.7px + 0.85cqi), 18px);
+    line-height: 1.6;
+  }
+}
+
 /* plain divider line between the video/media and the gallery below it
    (previously had a text label here — now just the hairline) */
 .project__media-divider{
@@ -2208,6 +2243,78 @@ html[data-theme="light"] .project:hover{
       window.addEventListener('resize', refreshLayout);
       galleryRefreshers.push(refreshLayout);
     }
+  });
+
+  /* ─── project description text-fit ──────────────────────────
+   * Instead of guessing a single CSS scale ratio that only looks right
+   * at one screen size (every project has a different bullet-text
+   * length, and every screen width changes the video/gallery height
+   * differently), actually measure the media column's real rendered
+   * height and grow the description text — in 0.5px steps, and only
+   * on desktop where the two columns sit side by side — until it just
+   * about matches that height without going past it. So on any given
+   * screen size, for any given project, the text is only ever as big
+   * as it can be while still fitting next to its own video/gallery.
+   */
+  var FIT_MIN  = 15.5;   /* matches the original base size — floor */
+  var FIT_MAX  = 19;     /* upper sanity cap so very short text on a
+                             tall video never balloons unreasonably */
+  var FIT_STEP = 0.5;
+  var mqDesktop = window.matchMedia('(min-width: 901px)');
+
+  document.querySelectorAll('.project__body').forEach(function(bodyEl){
+    var media = bodyEl.querySelector('.project__media-col');
+    var text  = bodyEl.querySelector('.project__desc-list') || bodyEl.querySelector('.project__desc');
+    if(!media || !text) return;
+    /* the elements whose font-size actually gets set — for the bullet
+       list that's each <li> (setting it on the <ul> alone would be
+       overridden by the <li>'s own font-size rule in the stylesheet) */
+    var items = text.tagName === 'UL' ? text.querySelectorAll('li') : [text];
+    if(!items.length) return;
+
+    function setFont(px){
+      items.forEach(function(el){ el.style.fontSize = px + 'px'; });
+    }
+
+    function fit(){
+      if(!mqDesktop.matches){
+        /* mobile/tablet: hand control back to the stylesheet's fixed
+           15.5px so nothing here affects the stacked layout */
+        items.forEach(function(el){ el.style.fontSize = ''; });
+        return;
+      }
+      var targetH = media.getBoundingClientRect().height;
+      if(!targetH) return; /* sheet still hidden — nothing to measure yet */
+      var font = FIT_MIN;
+      setFont(font);
+      while(font + FIT_STEP <= FIT_MAX){
+        setFont(font + FIT_STEP);
+        if(text.scrollHeight > targetH){
+          setFont(font);   /* that step overshot — back off and stop */
+          break;
+        }
+        font += FIT_STEP;
+      }
+    }
+
+    /* Recalculate any time the media column's own box actually changes
+       size — window resize, the sidebar collapsing/expanding, this
+       project's sheet being un-hidden, the video/gallery finishing
+       layout, all of it. Same ResizeObserver pattern as the gallery
+       code above, which is what makes this correct at any screen size
+       without having to guess which event caused the change. */
+    if('ResizeObserver' in window){
+      var ro = new ResizeObserver(function(){ fit(); });
+      ro.observe(media);
+    } else {
+      window.addEventListener('resize', fit);
+      galleryRefreshers.push(fit);
+    }
+    /* also re-fit if the viewport crosses the desktop/mobile breakpoint
+       itself, since ResizeObserver on `media` won't necessarily fire
+       just because the CSS grid switched from 2 columns to 1 */
+    if(mqDesktop.addEventListener) mqDesktop.addEventListener('change', fit);
+    else if(mqDesktop.addListener) mqDesktop.addListener(fit);
   });
 
   /* ─── project fade-in on scroll ─────────────────────────────
